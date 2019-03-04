@@ -52,11 +52,31 @@
 
 \graphicspath{{figs/}}
 
-\title{Symbolic Reasoning fro HRI}
+\title{Symbolic Reasoning for HRI}
 \subtitle{~}
 \date{}
 \author{Séverin Lemaignan}
 \institute{{\bf Bristol Robotics Lab}\\University of the West of England}
+
+
+% for model of anthopomorphism
+\newcommand{\IPA}{{$\mathcal{A}_0$~}}
+\newcommand{\SLA}{{$\mathcal{A}_\infty$~}}
+\newcommand{\sla}{{\mathcal{A}_\infty}}
+\newcommand{\AntMax}{{$\mathcal{A}_{max}$~}}
+\newcommand{\antMax}{{\mathcal{A}_{max}}}
+
+% for HATP plans
+\newcommand{\hatpaction}[3]{#1\\\textsf{\scriptsize #2,}\\\textsf{\scriptsize #3}}
+\newcommand{\stmt}[1]{{\footnotesize \tt  #1}}
+
+% for mutual modelling
+\newcommand{\Mmodel}[3]{{\mathcal{M}(#1, #2, #3)}}
+\newcommand{\model}[3]{{$\mathcal{M}(#1, #2, #3)$}}
+\newcommand{\Model}[3]{{$\mathcal{M}^{\circ}(#1, #2, #3)$}}
+
+% typeset logical concept
+\newcommand{\concept}[1]{{\scriptsize \texttt{#1}}}
 
 \begin{document}
 
@@ -68,1376 +88,1256 @@
 
 \miniframeson
 
-\section[Social signals?]{What are Social Signals?}
-
-\videoframe[0.56]{figs/tears-of-steel-extract.mp4}
-\imageframe{social-signal}
-
 \begin{frame}{In this lecture}
 
 \begin{itemize}
-    \item What/why social sigal processing?
-    \item Classification (k-nearest neighbours and Support Vector Machines)
+    \item<1-> Last week: NLP down to syntax parsing
+    \item<2-> Today: \textbf{meaning} (both semantics and pragmatics)
 
-    \item Case study: emotions (aka: let's build an emotion classifier from
-        scratch)
+    \item<3-> How to attach \emph{meaning} to natural language?
+    \item<3-> What are ontologies?
+    \item<3-> How is `meaning' represented and used within the robot?
+    \item<3-> How does it relate to \emph{mental models}?
 
 \end{itemize}
 
 \end{frame}
 
 
+\section*{Introduction}
+
+
+\imageframe{pr2-baby-3}
+
+
+\begin{frame}[plain]
+
+    \centering
+    {\bf Situated dialogue} effectively evidences the challenges
+
+    \begin{columns}
+        \begin{column}{0.5\linewidth}
+            How can the robot make sense of and act upon a command like:
+            \vspace{2em}
+
+            \bf
+            ``Can you give me that book?''
+        \end{column}
+        \begin{column}{0.5\linewidth}
+            \begin{center}
+                \includegraphics[width=\linewidth]{pr2-baby-3}
+            \end{center}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+
+{\paper{Harnad, \emph{The Symbolic Grounding Problem}, 1990}
+
+\begin{frame}{The Symbol Grounding Problem}
+    \centering
+    \Large How to attach meaning to a symbol?
+
+    \normalsize
+
+    \only<2>{
+
+        Searle's \textbf{Chinese Room Argument}
+
+        \begin{center}
+            \includegraphics[width=0.8\linewidth]{chinese-room}
+        \end{center}
+
+
+        \href{https://en.wikipedia.org/wiki/Chinese_room}{Read more on Wikipedia}
+
+    }
+
+    \only<3>{
+
+        Is it possible at all?
+
+    }
+
+\end{frame}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Symbolic social cognition}
+
 
 {
-    \paper{Burgoon, Magnenat-Thalmann, Pantic, Vinciarelli, {\bf Social Signal Processing}, 2017}
+    \paper{Lemaignan et al., \emph{Artificial Cognition for Social Human-Robot
+    Interaction: An Implementation}, Artifical Intelligence, 2017}
+\begin{frame}{Situation Assessment}
+        \centering
+        \video{0.8\textwidth}{videos/model3d.webm}\\
 
-\begin{frame}{What are social signals?}
+\end{frame}
+}
 
+\begin{frame}{Visual Perspective taking}
+
+        \centering
+        \includegraphics[width=0.8\textwidth]{spark_vert.pdf}
+
+\end{frame}
+
+{
+    \paper{Lemaignan et al., \emph{Artificial Cognition for Social Human-Robot
+    Interaction: An Implementation}, Artifical Intelligence, 2016}
+\begin{frame}{}
+        \centering
+        \scriptsize
+
+        \begin{tabular}{p{1.5cm}lp{2cm}}
+            Subject & Predicate  & Object  \\ 
+            \hline
+            \concept{Location} & \concept{isAt}  &  \concept{Location}  \\ 
+                               &  $\rightarrow$ \concept{isOn}  &   \\ 
+                               &  $\rightarrow$ \concept{isIn}  &   \\ 
+                               &  $\rightarrow$ \concept{isNextTo}  &   \\ 
+
+            \concept{Location}  & \concept{isAbove}  &  \concept{Location} \\ 
+            \concept{Location}  & \concept{isBelow}  & \concept{Location} \\
+            \hline
+            \concept{Location}  & \concept{hasRelativePosition}  & \concept{Location}  \\ 
+                                   & 	$\rightarrow$ \concept{behind} & \\ 
+                                      &  $\rightarrow$ \concept{inFrontOf}  & \\ 
+                                         &  $\rightarrow$ \concept{leftOf}  &  \\ 
+                                            &  $\rightarrow$ \concept{rightOf}  & 	 \\ 
+            \concept{Object}  & \concept{farFrom}  &  \concept{Agent} \\ 
+            \concept{Object}  & \concept{near}  &  \concept{Agent} \\
+
+            \hline
+            \concept{Agent}  & \concept{looksAt}  & \concept{SpatialThing} \\
+            \concept{Agent}  & \concept{sees}  &  \concept{SpatialThing}  \\ 
+            \concept{SpatialThing}  & \concept{isInFieldOfView}  & \concept{xsd:boolean}  \\ 
+            \concept{Agent}  & \concept{pointsAt}  & \concept{SpatialThing} \\ 
+            \concept{Agent}  & \concept{focusesOn}  &  \concept{SpatialThing}  \\ 
+            \concept{Agent} & \concept{seesWithHeadMovement} &  \concept{SpatialThing} \\
+            \concept{Agent} & \concept{canReach} &  \concept{Object} \\ 
+
+        \end{tabular}
+
+\end{frame}
+}
+
+{
+    \paper{Lemaignan et al. \emph{ORO, a Knowledge Management Module for
+    Cognitive Architectures in Robotics}, IROS 2010}
+\begin{frame}{From Spatial Model to Symbolic Model}
+
+    \begin{figure}
+        \centering
+
+        \resizebox{0.9\paperwidth}{!}{%
+            \begin{tikzpicture}[
+                    >=latex,
+                    every edge/.style={<-, draw, very thick},
+                    every node/.style={draw, font=\sf, node distance=0.5, rounded corners,
+                align=center, inner sep=5pt,fill=hriSec2Dark!50}]
+
+                \node[fill=hriSec2Comp!50] (thing) {\bf thing};
+                \node [fill=hriSec3CompDark!50, node distance=1.8, below left=of thing](sthing) {spatial thing} edge (thing);
+                \node [fill=hriSec3CompDark!50, above left=of sthing] {posture} edge (sthing);
+                \node [fill=hriSec3CompDark!50, left=of sthing] {shape} edge (sthing);
+                \node [fill=hriSec3CompDark!50, below=of sthing] (location) {location} edge (sthing);
+                \node [fill=hriSec3CompDark!50, below right=of location] {zone} edge (location);
+                \node [fill=hriSec3CompDark!50, below left=of location] (set) {spatial enduring thing} edge (location);
+                \node [fill=hriSec3CompDark!50, below right=of set] {obstacle} edge (set);
+                \node [fill=hriSec3CompDark!50, below left=of set] {opening} edge (set);
+                \node [fill=hriSec3CompDark!50, below=1 of set] {partially tangible thing} edge (set);
+                \node [fill=hriSec3CompDark!50, above left=of set] {place} edge (set);
+
+                \node [node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
+                \node [below=of tthing] (tte) {thing with temporal extent} edge (tthing);
+                \node [below right=of tte] {time interval} edge (tte);
+                \node [below=1 of tte] (sit) {situation} edge (tte);
+                \node [below right=of sit] (evt) {event} edge (sit);
+                \node [below right=of evt] (act) {action} edge (evt);
+                \node [below=of act] {purposeful action} edge (act);
+                \node [below left=of sit] {static situation} edge (sit);
+
+            \end{tikzpicture}
+        }
+
+    \end{figure}
+
+\end{frame}
+}
+
+
+\begin{frame}{Ontologies}
+
+    \centering
+    \Large
+     An \textbf{ontology} encompasses a representation, formal naming, and definition of the categories,
+     properties, and relations between the concepts, data, and entities that
+     substantiate one, many, or all domains.
+
+     \normalsize
+
+     \onslide<2->{(also known as a \textbf{knowledge graph})}
+
+     \onslide<3>{Ontologies often have close relationships with \textbf{first-order logic
+     (FOL)}
+     -- more about that later.}
+
+\end{frame}
+
+\begin{frame}{Ontologies}
 
     \begin{itemize}
-        \item<1-> Social signals are \emph{observable} behaviours that people
-            display during social interactions
-        \item<2-> Social signals from an individual \emph{produces changes} in others
-            (like creating a belief about the person, generating an appropriate social
-            response, perform an actions)
-        \item<3-> the changes are not random, they follow \emph{principles and
-            laws} (in particular, \emph{social norms})
+        \item \textbf{T-box} statements: the \emph{conceptualisation} of the
+            domain, for instance in terms of \emph{categories} (classes): \stmt{Dog
+            rdfs:subClassOf Animal}
+
+        \item \textbf{A-box} statements: (T-box compliant) statements about
+            \emph{individuals} (instances) in the ontology: \stmt{SPOT rdf:type Dog}
 
     \end{itemize}
 
+    \pause
+
+    Ontologies are represented using a \textbf{knowledge description} language.
+    The \textbf{Web Ontology Langage (OWL)} is a very common choice that uses a
+    XML encoding.
+\end{frame}
+
+\begin{frame}{Online instanciation}
+
+    \begin{columns}
+        \begin{column}{0.4\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{human-perspective-small}
+             
+        \end{column}
+        \begin{column}{0.6\linewidth}
+        
+        \begin{figure}
+
+        \resizebox{\columnwidth}{!}{%
+        \begin{tikzpicture}[
+            yscale=1.3,
+            >=latex,
+            every edge/.style={<-, draw, very thick},
+            every node/.style={draw, font=\sf, node distance=0.5, rounded corners,
+            align=center, inner sep=5pt,fill=hriSec2Dark!50},
+            classof/.style={<-, draw=black!60, dashed},
+            property/.style={<-, draw=hriSec2Comp},
+            propname/.style={above, draw=none, fill=none, font=\tt, inner sep=2pt},
+            instance/.style={draw=hriSec1Dark, font=\sf, node distance=0.5, rounded corners,
+        align=center, inner sep=5pt, fill=none}]
+
+            \node[fill=hriSec2Comp!50] (thing) {\textbf{thing}};
+            \node [fill=hriSec3CompDark!50, node distance=1.8, below left=of
+            thing](sthing) {place} edge[dashed] (thing);
+            \node [fill=hriSec3CompDark!50, below left=of sthing] (agent) {agent} edge (sthing);
+                \node [fill=hriSec3CompDark!50, below=of sthing] (artifact) {artifact} edge (sthing);
+                \node [fill=hriSec3CompDark!50, below right=of sthing] (location) {physical
+                support} edge (sthing);
+                \node [fill=hriSec3CompDark!50, below right=of artifact] (table) {table}
+                    edge (location) edge (artifact);
+
+
+            \node [node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
+                \node [below right=of tthing] (evt) {event} edge[dashed] (tthing);
+                            \node [below right=of evt] (act) {action} edge (evt);
+
+        \uncover<2->{
+        \draw[dotted, thick] (-8,-3.8) -- +(16, 0);
+
+        \node [instance, below=3 of agent] (human) {human\_1} edge[classof, bend left] (agent);
+        \node [instance, above left=of human] (human2) {human\_2} edge[classof, bend left] (agent);
+        \node [instance, above right=of human, anchor=south] (robot) {myself} edge[classof, bend left] (agent);
+        \node [instance, right=of human, anchor=north west] (book)
+            {harry\_potter}
+        edge[classof] (artifact);
+        \node [instance, right=2 of robot] (ikea) {ikea\_table} edge[classof, bend
+        right] (table);
+        \node [instance, right=2 of book] (brown) {brown} edge[property] node[propname] {hasColor} (book);
+
+
+        }
+        \uncover<3>{
+        \draw[dotted, thick] (-8,-6.2) -- +(16, 0);
+
+        \node [instance, below=5 of act] (moving) {move\_act\_42} edge[classof] (act);
+        \path (moving.west) edge [property, out=180, in=-80, looseness=1] node[propname,below] {currentlyPerforms} (human.230);
+        \path (human.280) edge [property, out=-80, in=-90, looseness=3.5] node[propname,right] {looksAt} (robot.south);
+        \path (ikea.south) edge [property, out=-90, in=-80, looseness=2.5] node[propname, auto] {isOn} (book.320);
+        }
+        \end{tikzpicture}
+        }
+
+        \end{figure}
+
+       \end{column}
+    \end{columns}
+
+
+
+
+\end{frame}
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+{
+\paper{Lemaignan et al. \emph{Grounding the Interaction: Anchoring
+Situated Discourse in Everyday HRI} -- Intl. J. of Social Robotics 2011}
+
+\begin{frame}{Dialogue Grounding}
+    \begin{figure}
+        \centering
+
+        \resizebox{0.4\paperwidth}{!}{%
+
+
+            \begin{tikzpicture}[
+                    >=latex,
+                every edge/.style={draw, very thick},
+                skill/.style={draw, rounded corners, align=center, inner sep=5pt, fill=black!20},
+                label/.style={midway, align=center, font=\scriptsize, above},
+                subpart/.style={rounded corners, draw, align=center, font=\scriptsize, fill opacity=0.5, text opacity=1, fill=white!50}]
+
+            %%% PARSING
+
+            \node at (0,0)[skill, fill=hriSec3CompDark!50] (prepro) {Pre-processing};
+                \node [left=0.7 of prepro] (input) {\textbf{Input}};
+                \path (input) edge [->] (prepro);
+
+                %\path (spark.100) edge [->, bend right] node[label] {symbolic \\ facts} (oro);
+                \node [below =0.4 of prepro, skill, fill=hriSec3CompDark!50] (parsing) {Parsing};
+                \path (prepro) edge [->] (parsing);
+
+                \coordinate (base-onto) at (4,0);
+
+                %%% RESOLUTION
+                \uncover<2->{
+                    \node [below=0.4 of parsing, skill, fill=hriSec3!50, minimum height=4cm, minimum width=5cm] (resolution) {};
+                \node [subpart, below=0.2 of resolution.115] (pron) {Pronouns \& \\ anaphora resolution};
+                \node [subpart, below=0.2 of pron] (noun) {Noun phrase \\ resolution};
+                \node [subpart, right=0.3 of noun, anchor=north west] (discr) {Discrimination};
+                \node [subpart, below=0.2 of noun] (verb) {Verbal phrase \\ resolution};
+                \node [subpart, cylinder, shape border rotate=90, aspect=0.5, below=0.2 of discr] (actions) {Actions};
+                \path (pron) edge [->] (noun);
+                \path (noun) edge [->] (discr);
+                \path (noun) edge [->] (verb);
+                \path (verb) edge [dashed, <->] (actions);
+                \path (pron) edge [dashed, <->] node[label] {queries} (pron -| base-onto);
+                \path (noun.20) edge [dashed, <->] node[label] {queries} (noun.20 -| base-onto);
+                \path (discr) edge [<->] (discr -| base-onto);
+
+                \node [left=0.2 of resolution.west, rotate=90, anchor=south] {Resolution};
+                \path (parsing) edge [->] (pron);
+            }
+
+            %%% INTERPRETATION
+                \uncover<3->{
+                    \node [skill, below=0.4 of resolution,minimum width=5cm, minimum height=3cm] (interp) {};
+                \node [subpart, below=0.2 of interp.north] (content) {Content analysis};
+                \node [below=0.6 of content.south west, subpart] (question) {Question \\ handler};
+                \node [below=0.6 of content.south east, subpart] (stat) {Statement \\ builder};
+                \path (content) edge [->] node[label, left] {question} (question);
+                \path (content) edge [->] node [label, right] {goal | statement} (stat);
+                \path (stat) edge [->] node [label] {asserts} (stat -| base-onto);
+
+                \node [left=0.2 of interp.west, rotate=90, anchor=south] {Interpretation};
+
+                \path (verb) edge [->] (content);
+                \path (question) edge [dashed, bend right, <->] node[label] {queries} (question.south -| base-onto);
+            }
+
+            %%% ONTOLOGY
+                \uncover<2->{
+                    \node at (resolution.north -| base-onto) [rotate=-90, skill, minimum height=2cm, minimum width=7cm, fill=hriSec3!50, anchor=south west] (onto) {Ontology};
+
+                }
+
+            %%% VERBALIZATION
+            \uncover<4->{
+                \node [below=0.7 of interp, skill, fill=hriSec2Dark!50] (verb) {Verbalization};
+            \path (question) edge [->] (verb);
+            \path (stat) edge [->] (verb);
+            \path (discr.south east) edge [black!50, dashed, bend left, <->] (verb.north east);
+            \node [right=0.7 of verb] (output) {\textbf{Output}};
+            \path (verb) edge [->] (output);
+        }
+        \end{tikzpicture}
+        }
+    \end{figure}
+
+\end{frame}
+}
+
+
+{
+\paper{Lemaignan et al. \emph{Grounding the Interaction: Anchoring
+Situated Discourse in Everyday HRI} Intl. J. of Social Robotics 2011}
+\begin{frame}{Dialogue Grounding}
+    \centering
+
+
+    \begin{columns}
+        \begin{column}{0.65\linewidth}
+
+    \centering
+    \vspace*{2em}
+    {\bf ``Give me the book on the table''}\\
+
+    \uncover<2-> {
+        $\downarrow$\\
+        {\tt me} $\rightarrow$ {\tt human\_1} \\
+        find({\tt\scriptsize ?obj type table}) $\rightarrow$ {\tt ikea\_table} \\
+        find({\tt\scriptsize ?obj type book, ?obj isOn ikea\_table})
+        $\rightarrow$ {\tt harry\_potter} \\
+    }
+
+    \uncover<3-> {
+        $\downarrow$\\
+        { \tt
+            \textbf{human\_1} desires \textbf{give\_act\_1}, \\
+            \textbf{give\_act\_1} type \textbf{Give}, \\
+            \textbf{give\_act\_1} performedBy \textbf{myself}, \\
+            \textbf{give\_act\_1} actsOnObject \textbf{book}, \\
+            \textbf{give\_act\_1} receivedBy \textbf{human\_1} \\
+        }
+    }
+            
+        \end{column}
+        \begin{column}{0.35\linewidth}
+         \resizebox{\linewidth}{!}{%
+ 
+ 
+             \begin{tikzpicture}[
+                     >=latex,
+                 every edge/.style={draw, very thick},
+                 skill/.style={draw, rounded corners, align=center, inner sep=5pt, fill=black!20},
+                 label/.style={midway, align=center, font=\scriptsize, above},
+                 subpart/.style={rounded corners, draw, align=center, font=\scriptsize, fill opacity=0.5, text opacity=1, fill=white!50}]
+ 
+             %%% PARSING
+ 
+             \node at (0,0)[skill, fill=hriSec3CompDark!50] (prepro) {Pre-processing};
+                 \node [left=0.7 of prepro] (input) {\textbf{Input}};
+                 \path (input) edge [->] (prepro);
+ 
+                 %\path (spark.100) edge [->, bend right] node[label] {symbolic \\ facts} (oro);
+                 \node [below =0.4 of prepro, skill, fill=hriSec3CompDark!50] (parsing) {Parsing};
+                 \path (prepro) edge [->] (parsing);
+ 
+                 \coordinate (base-onto) at (4,0);
+ 
+                 %%% RESOLUTION
+                     \node [below=0.4 of parsing, skill, fill=hriSec3!50, minimum height=4cm, minimum width=5cm] (resolution) {};
+                 \node [subpart, below=0.2 of resolution.115] (pron) {Pronouns \& \\ anaphora resolution};
+                 \node [subpart, below=0.2 of pron] (noun) {Noun phrase \\ resolution};
+                 \node [subpart, right=0.3 of noun, anchor=north west] (discr) {Discrimination};
+                 \node [subpart, below=0.2 of noun] (verb) {Verbal phrase \\ resolution};
+                 \node [subpart, cylinder, shape border rotate=90, aspect=0.5, below=0.2 of discr] (actions) {Actions};
+                 \path (pron) edge [->] (noun);
+                 \path (noun) edge [->] (discr);
+                 \path (noun) edge [->] (verb);
+                 \path (verb) edge [dashed, <->] (actions);
+                 \path (pron) edge [dashed, <->] node[label] {queries} (pron -| base-onto);
+                 \path (noun.20) edge [dashed, <->] node[label] {queries} (noun.20 -| base-onto);
+                 \path (discr) edge [<->] (discr -| base-onto);
+ 
+                 \node [left=0.2 of resolution.west, rotate=90, anchor=south] {Resolution};
+                 \path (parsing) edge [->] (pron);
+ 
+             %%% INTERPRETATION
+                     \node [skill, below=0.4 of resolution,minimum width=5cm, minimum height=3cm] (interp) {};
+                 \node [subpart, below=0.2 of interp.north] (content) {Content analysis};
+                 \node [below=0.6 of content.south west, subpart] (question) {Question \\ handler};
+                 \node [below=0.6 of content.south east, subpart] (stat) {Statement \\ builder};
+                 \path (content) edge [->] node[label, left] {question} (question);
+                 \path (content) edge [->] node [label, right] {goal | statement} (stat);
+                 \path (stat) edge [->] node [label] {asserts} (stat -| base-onto);
+ 
+                 \node [left=0.2 of interp.west, rotate=90, anchor=south] {Interpretation};
+ 
+                 \path (verb) edge [->] (content);
+                 \path (question) edge [dashed, bend right, <->] node[label] {queries} (question.south -| base-onto);
+ 
+             %%% ONTOLOGY
+                     \node at (resolution.north -| base-onto) [rotate=-90, skill, minimum height=2cm, minimum width=7cm, fill=hriSec3!50, anchor=south west] (onto) {Ontology};
+ 
+ 
+             %%% VERBALIZATION
+                 \node [below=0.7 of interp, skill, fill=hriSec2Dark!50] (verb) {Verbalization};
+             \path (question) edge [->] (verb);
+             \path (stat) edge [->] (verb);
+             \path (discr.south east) edge [black!50, dashed, bend left, <->] (verb.north east);
+             \node [right=0.7 of verb] (output) {\textbf{Output}};
+             \path (verb) edge [->] (output);
+         \end{tikzpicture}
+         }
+
+        \end{column}
+    \end{columns}
+
+
+\end{frame}
+}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{
+    \paper{Lemaignan et al., {\bf Artificial Cognition for Social Human-Robot
+    Interaction: An Implementation}, Artifical Intelligence, 2017}
+\begin{frame}{Multi-modal interaction}
+
+    \begin{columns}
+        \begin{column}{0.4\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{human-perspective-small}
+             
+        \end{column}
+        \begin{column}{0.6\linewidth}
+        
+    \centering
+    What about
+
+    {\bf ``Give me \emph{that} book''}?
+
+     \footnotesize
+    (or even: {\bf ``Give me \emph{that}!''})
+
+       \end{column}
+    \end{columns}
+
+
+
+
+\end{frame}
+}
+
+%\videoframe[0.56]{videos/this_box.webm}
+\videoframe[0.56]{videos/this_box.mp4?autostart&start=1}
+
+\begin{frame}{Example of first-order logic reasoning}
+    \centering
+
+    \vspace*{2em}
+    ``Where is the other tape?''\\
+    $\downarrow$\\
+    find({\tt\scriptsize ?obj isAt ?loc, ?obj type VideoTape, ?obj differentFrom
+    WALL\_E\_TAPE})
+
+    \pause
+
+    \vspace*{2em}
+    Symbolic approaches effective at dealing with this kind of constraints
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section[Theory of Mind]{One step further: Theory of Mind}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{ \paper{Wimmer and Perner, {\bf Beliefs about beliefs: Representation and
+constraining function [...]}, Cognition, 1983]%\newline
+%        [Lemaignan, Dillenbourg {\bf Mutual Modelling in Robotics: Inspirations
+%        for the Next Steps} -- HRI 2015
+}
+\begin{frame}{1st order ToM: the False-Belief Experiment}
+
+        \begin{center} 
+            \includegraphics[width=0.7\textwidth]{sally_ann.pdf}
+        \end{center}
 \end{frame}
 }
 
 \begin{frame}[plain]
-\centering
-        \resizebox{!}{0.9\paperheight}{%
+
+    \begin{center}
+        \includegraphics[width=0.8\linewidth]{videos/this_box_thumb}
+
+        What if I ask for the video tape in the box, but the robot previously
+        moved it somewhere else?
+
+
+    \pause
+
+        {\bf False-belief situation}
+    \end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Parallel Models: towards theory of mind}
+        \begin{multicols}{2}
+            \begin{figure}
+                \resizebox{0.4\textwidth}{!}{
+                    \begin{tikzpicture}[
+                        >=latex,
+                        every edge/.style={<-, draw, very thick},
+                        every node/.style={draw, font=\sf, node distance=0.5, rounded corners,
+                                        align=center, inner sep=5pt,fill=hriSec2Dark!50},
+                        classof/.style={<-, draw=black!60, dashed},
+                        property/.style={<-, draw=hriSec2Comp},
+                        propname/.style={above, draw=none, fill=none, font=\tt, inner sep=2pt},
+                        instance/.style={draw=hriSec1Dark, font=\sf, node distance=0.5, rounded corners,
+                        align=center, inner sep=5pt, fill=white}]
+
+                    \node[fill=hriSec2Comp!50] (thing) {\textbf{thing}};
+                    \node [fill=hriSec3CompDark!50, node distance=1.8, below left=of thing](sthing) {place} edge[dashed] (thing);
+                    \node [fill=hriSec3CompDark!50, below left=of sthing] (agent) {agent} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below=of sthing] (artifact) {artifact} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below right=of sthing] (location) {physical
+                        support} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below right=of artifact] (table) {table}
+                            edge (location) edge (artifact);
+
+
+                    \node [node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
+                        \node [below right=of tthing] (evt) {event} edge[dashed] (tthing);
+                                    \node [below right=of evt] (act) {action} edge (evt);
+
+                \draw[dotted, thick] (-7,-5) -- (7.5, -5);
+
+                \node [instance, below=3 of agent] (human) {human\_1} edge[classof, bend left] (agent);
+                \node [instance, above left=of human] (human2) {human\_2} edge[classof, bend left] (agent);
+                \node [instance, above right=of human, anchor=south] (robot) {pr2\_robot} edge[classof, bend left] (agent);
+;
+                \node [instance, right=of human, anchor=north west] (book) {harry\_potter}
+                edge[classof] (artifact);
+                \node [instance, right=3 of robot] (ikea) {ikea\_table} edge[classof, bend
+                right] (table);
+                \node [instance, right=2 of book] (red) {red} edge[property] node[propname] {hasColor} (book);
+
+                \node [instance,right=1 of robot,fill=hriSec2] {myself} edge[property] node[propname, auto,above] {$\equiv$} (robot);
+
+                \draw[dotted, thick] (-7,-8) -- (7.5, -8);
+
+                \path (book.200) edge [property, out=-100, in=-80, looseness=2]
+                node[propname,auto] {isNextTo} (human.south);
+                \path (book.270) edge [property, out=-100, in=-90, looseness=3.5] node[propname,auto] {looksAt} (robot.south);
+                \path (ikea.south) edge [property, out=-90, in=-80, looseness=3] node[propname, auto] {isOn} (book.320);
+                \end{tikzpicture}
+            }
+
+            \end{figure}
+            \begin{figure}
+                \resizebox{0.4\textwidth}{!}{
+                    \begin{tikzpicture}[
+                        >=latex,
+                        every edge/.style={<-, draw, very thick},
+                        every node/.style={draw, font=\sf, node distance=0.5, rounded corners,
+                                        align=center, inner sep=5pt,fill=hriSec2Dark!50},
+                        classof/.style={<-, draw=black!60, dashed},
+                        property/.style={<-, draw=hriSec2Comp},
+                        propname/.style={above, draw=none, fill=none, font=\tt, inner sep=2pt},
+                        instance/.style={draw=hriSec1Dark, font=\sf, node distance=0.5, rounded corners,
+                        align=center, inner sep=5pt, fill=white}]
+
+                    \node[fill=hriSec2Comp!50] (thing) {\textbf{thing}};
+                    \node [fill=hriSec3CompDark!50, node distance=1.8, below left=of thing](sthing) {place} edge[dashed] (thing);
+                    \node [fill=hriSec3CompDark!50, below left=of sthing] (agent) {agent} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below=of sthing] (artifact) {artifact} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below right=of sthing] (location) {physical
+                        support} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below right=of artifact] (table) {table}
+                            edge (location) edge (artifact);
+
+
+                    \node [node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
+                        \node [below right=of tthing] (evt) {event} edge[dashed] (tthing);
+                                    \node [below right=of evt] (act) {action} edge (evt);
+
+                \draw[dotted, thick] (-7,-5) -- (7.5, -5);
+
+                \node [instance, below=3 of agent] (human) {human\_1} edge[classof, bend left] (agent);
+                \node [instance, above left=of human] (human2) {human\_2} edge[classof, bend left] (agent);
+                \node [instance, above right=of human, anchor=south] (robot) {pr2\_robot} edge[classof, bend left] (agent);
+;
+                \node [instance, right=of human, anchor=north west] (book) {harry\_potter}
+                edge[classof] (artifact);
+                \node [instance, right=3 of robot] (ikea) {ikea\_table} edge[classof, bend
+                right] (table);
+                \node [instance, right=2 of book] (red) {red} edge[property] node[propname] {hasColor} (book);
+
+                \node [instance,below left=1 of human,fill=hriSec2] {myself} edge[property] node[propname, auto,above] {$\equiv$} (human);
+
+                \draw[dotted, thick] (-7,-8) -- (7.5, -8);
+
+                \path (book.200) edge [property, out=-100, in=-80, looseness=2]
+                node[propname,auto] {isNextTo} (human.south);
+                \path (book.270) edge [property, out=-100, in=-90, looseness=3.5] node[propname,auto] {looksAt} (robot.south);
+                \path (ikea.south) edge [property, out=-90, in=-80, looseness=3] node[propname, auto] {isOn} (book.320);
+                \end{tikzpicture}
+            }
+            \end{figure}
+            \begin{figure}
+                \resizebox{0.4\textwidth}{!}{
+                    \begin{tikzpicture}[
+                        >=latex,
+                        every edge/.style={<-, draw, very thick},
+                        every node/.style={draw, font=\sf, node distance=0.5, rounded corners,
+                                        align=center, inner sep=5pt,fill=hriSec2Dark!50},
+                        classof/.style={<-, draw=black!60, dashed},
+                        property/.style={<-, draw=hriSec2Comp},
+                        propname/.style={above, draw=none, fill=none, font=\tt, inner sep=2pt},
+                        instance/.style={draw=hriSec1Dark, font=\sf, node distance=0.5, rounded corners,
+                        align=center, inner sep=5pt, fill=white}]
+
+                    \node[fill=hriSec2Comp!50] (thing) {\textbf{thing}};
+                    \node [fill=hriSec3CompDark!50, node distance=1.8, below left=of thing](sthing) {place} edge[dashed] (thing);
+                    \node [fill=hriSec3CompDark!50, below left=of sthing] (agent) {agent} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below=of sthing] (artifact) {artifact} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below right=of sthing] (location) {physical
+                        support} edge (sthing);
+                        \node [fill=hriSec3CompDark!50, below right=of artifact] (table) {table}
+                            edge (location) edge (artifact);
+
+
+                    \node [node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
+                        \node [below right=of tthing] (evt) {event} edge[dashed] (tthing);
+                                    \node [below right=of evt] (act) {action} edge (evt);
+
+                \draw[dotted, thick] (-7,-5) -- (7.5, -5);
+
+                \node [instance, below=3 of agent] (human) {human\_1} edge[classof, bend left] (agent);
+                \node [instance, above left=of human] (human2) {human\_2} edge[classof, bend left] (agent);
+                \node [instance, above right=of human, anchor=south] (robot) {pr2\_robot} edge[classof, bend left] (agent);
+;
+                \node [instance, right=of human, anchor=north west] (book)
+                        {harry\_potter}
+                edge[classof] (artifact);
+                \node [instance, right=3 of robot] (ikea) {ikea\_table} edge[classof, bend
+                right] (table);
+                \node [instance, right=2 of book] (red) {red} edge[property] node[propname] {hasColor} (book);
+
+                \node [instance,below=1 of human2,fill=hriSec2] {myself} edge[property] node[propname, auto] {$\equiv$} (human2);
+
+                \draw[dotted, thick] (-7,-8) -- (7.5, -8);
+
+                \path (book.200) edge [property, out=-100, in=-80, looseness=2]
+                node[propname,auto] {isNextTo} (human.south);
+                \path (book.270) edge [property, out=-100, in=-90, looseness=3.5] node[propname,auto] {looksAt} (robot.south);
+                \path (ikea.south) edge [property, out=-90, in=-80, looseness=3] node[propname, auto] {isOn} (book.320);
+                \end{tikzpicture}
+            }
+            \end{figure}
+            {\vspace*{1.5cm}\hspace*{2.5cm}\huge...}
+        \end{multicols}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Semantics-aware architecture}
+
+{
+    \paper{Lemaignan et al., {\bf Artificial Cognition for Social Human-Robot
+    Interaction: An Implementation}, Artifical Intelligence, 2017}
+\begin{frame}<1-6>{Into an control architecture}
+    \begin{figure}
+        \centering
+
+        \resizebox{0.9\paperwidth}{!}{%
+
+            
+            \newcommand{\dimming}{50}
+
+            \tikzset{subpart/.style={draw, font=\scriptsize, fill opacity=0.5, text opacity=1, fill=white!50}}
+
             \begin{tikzpicture}[
                     >=latex,
-                every edge/.style={<-, draw, very thick}]
-        
+                    every edge/.style={draw, very thick},
+                    skill/.style={draw, rounded corners, align=center, inner sep=5pt, fill=black!20},
+                label/.style={midway, align=center, font=\scriptsize, fill=white}]
 
-            \path[small mindmap, 
-                level 1 concept/.append style={sibling angle=90}, 
-                level 2 concept/.append style={sibling angle=60}, 
-            concept color=white,text=hriWarmGreyDark]
-            node[concept, visible on=<1-3>] {\bf Social\\Signals...}
-            [clockwise from=0]
-            child[concept color=hriSec2] { node[concept] (percept){...on the face}
-                [clockwise from=30]
-                child[concept color=hriSec3Dark,text=white] { node[concept]
-                (emotions) {Emotions} }
-                child[concept color=hriSec2Dark,text=white] { node[concept] (attention) {Gaze} };
-            }
-            child[concept color=hriSec2Comp,text=white,visible on=<2->] { node[concept] (knowledge) {...from the body}
-                [counterclockwise from=-170]
-                child[concept color=hriSec1CompDark,text=white] { node[concept] (soc-rules) {Proxemics} }
-                child[concept color=hriSec3Comp,text=black] { node[concept] (soc-ctxt) {Body posture} }
-                child[concept color=hriSec2,text=black] { node[concept]
-                (soc-ctxt) {Motion} }
-                child[concept color=hriSec2Dark,text=white] { node[concept] (memory) {Gestures} };
-            }
-            child[concept color=hriSec3Comp,text=black,visible on=<3->] { node[concept] (comm) {...in the voice} 
-                [counterclockwise from=90]
-                child[concept color=hriSec1CompDark,text=white] { node[concept] (dialog) {Prosody} }
-                child[concept color=hriSec3,text=white] { node[concept] (dialog) {Verbal communication} }
-                child[concept color=hriSec1Dark,text=white] { node[concept] (non-verbal) {Non-verbal} };
-            };
+                %%% Separation between deliberative layer and sensori-motor layer
+                \draw[dotted, thick] (-8,-5) -- (12, -5);
+
+                %%% SPARK
+                \uncover<2->{
+                    \node at (4,-3.5)[skill, fill=hriSec3!\dimming] (spark) {%
+                    \begin{tikzpicture}
+                        \node at (0,0) (geom) {Geometric \& Temporal Reasoning};
+                        \node [subpart, below=0.2 of geom.south west, anchor=north west] (world-update) {Sensors fusion};
+                        \node [subpart, right=0.2 of world-update] (geom-model) {Geometric model of the environment};
+                        \node [subpart, right=0.2 of geom-model] (fact-prod) {Symbolic facts production};
+                    \end{tikzpicture}
+                };
+                }
+
+                %%% LOWLEVEL
+                \node [skill, below=0.7 of spark,fill=gray!\dimming] (lowlevel) {%
+                    \begin{tikzpicture}
+                        \node at (0,0) (sensori) {Sensorimotor layer};
+                        %\node [subpart, below=0.2 of sensori.south west, anchor=north west, align=left] (perception) {{\bf Perception} \\ 2D markers, RGB-D, motion capture};
+                        %\node [subpart, align=right, right=0.2 of perception] {{\bf Actuation} \\ Head's pan-tilt unit, grippers, arms, wheels};
+                    \end{tikzpicture}
+                };
+
+                \uncover<2->{
+                \path (lowlevel) edge [->] (spark);
+                }
+
+                %%% ORO
+                \uncover<3->{
+                \node at (0,0)[skill, ultra thick, fill=hriSec2Dark!50] (oro)
+                {Symbolic facts \\ and beliefs management};
+                \path (spark.100) edge [->, bend right] node[label] {symbolic \\ facts} (oro);
+                }
+
+                %%% HATP
+                \uncover<5->{
+                \node at (-6, 2.5)[skill, fill=hriSec1!\dimming] (hatp) {Human-aware
+                symbolic \\task planning};
+                \path (hatp) edge [<->, bend right] node[label] {world model and \\ agents beliefs} (oro.170);
+                }
+
+                %%% DIALOGS
+                \uncover<4->{
+                \node at (-6, -3) [skill, fill=hriSec3Dark!50] (dialogs)
+                {Dialogue processing};
+                \path (dialogs) edge [<->, bend left] node[label] {natural language \\ grounding} (oro.190);
+                }
+                %%% SHARY
+                \uncover<5->{
+                \node at (4,4.5)[skill, fill=hriSec1Comp!\dimming] (shary) {%
+                    \begin{tikzpicture}
+                        \node at (0,0) (exec) {Execution Controller};
+                        \node [subpart, below=0.2 of exec.south west, anchor=north west] (plans) {Goal \& Plans \\ management};
+                        \node [subpart, right=0.2 of plans] (sit-asses) {Situation assessment \\ and context management};
+                        \node [subpart, right=0.2 of sit-asses] {Action instantiation, \\ execution and monitoring};
+                    \end{tikzpicture}
+                };
+                \path (shary) edge [<->, bend left] node[label] {events, \\ world model and \\ agents beliefs} (oro);
+                \path (shary) edge [<->, bend left, looseness=0.8] node[label] {action monitoring \\ and management of \\ position hypotheses} (spark);
+                \path (shary.west) edge [<->, bend right] node[label] {shared \\ plans} (hatp);
+                }
+                %%% MHP
+                \uncover<6->{
+                \node at (9,0)[skill, fill=hriSec3CompDark!\dimming] (mhp)
+                {Human-aware Motion \\ and Manipulation Planning};
+                \path (shary.340) edge [<->, bend left] node[label] {motion plan \\ requests} (mhp);
+                \path (spark.5) edge [->, bend right] node[label] {environment\\model} (mhp);
+                \path (lowlevel.east) edge [<-, bend right=60, looseness=1.3] node[label] {atomic\\actions} (mhp.south east);
+                }
 
 
-        \end{tikzpicture}
-    }
+
+            \end{tikzpicture}
+        }
+    \end{figure}
+
+
 \end{frame}
+%}
 
 
-\begin{frame}{Why?}
+\videoframe[0.7]{videos/clean-table.webm}
 
-    The ability to recognize human social signals and social behaviours like turn
-    taking, politeness, and disagreement is essential when building social
-    robots, human-robot interaction, or interactive systems
-
-\pause
-
-    \begin{exampleblock}{3 main problems}
-
-    \begin{itemize}
-        \item \emph{Modeling}: identification of the principles and laws
-        \item \emph{Analysis}: automatic detection and interpretation
-        \item \emph{Synthesis}: automatic generation of artificial social
-            signals
-    \end{itemize}
-
-    \end{exampleblock}
-\end{frame}
-
-\begin{frame}{How hard?}
-
-    In order to understand ``what's going on?'' (\emph{classification}), we
-    first need to build \emph{representations} by the mean of raw data
-    pre-processing (\emph{conditionning}). This typically relies on
-    \emph{models} (skeletons, language, eye, etc.)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
+%\paper{Lemaignan et al. {\bf Artificial Cognition for Social Human-Robot
+%     Interaction: An Implementation} Artifical Intelligence, 2016}
+\begin{frame}{Full social \& autonomous interaction: one example}
 
     \begin{center}
-        \includegraphics[width=0.9\linewidth]{pinsoro-kinematics/clips}
+
+     \begin{columns}
+         \begin{column}{0.3\linewidth}
+                 \includegraphics[height=0.75\paperheight]{clean-table}
+         \end{column}
+         \begin{column}{0.7\linewidth}
+             \centering
+             \resizebox{!}{0.75\paperheight}{%
+                 \begin{tikzpicture}[
+                         >=latex,
+                     every edge/.style={draw, ultra thick, ->},
+                     every node/.style={align=center},
+                     robot/.style={fill=hriSec2Comp!50},
+                     plan/.style={draw,
+                      thick,  
+                      circle, 
+                      font=\sf,
+                      align=center,
+                      fill=hriSec3CompDark!50, 
+                      minimum size=1cm, 
+                      inner sep=0.1cm}
+                  ]
+
+                     \coordinate (figbottom) at (-0.5, -28.5);
+
+
+                     \fill[gray!10!white] (4.6,.5) rectangle (figbottom);
+
+                     \path (-0.5,0) edge (figbottom) node[sloped, above left, rotate=90] {\large\bf time};
+
+                     \node at (2,0) (percept) {\bf Perception};
+                     \node[below=0.5 of percept.south west, anchor=mid] {camera};
+                     \node[below=0.5 of percept.south east, anchor=mid] {3D model};
+
+                     \node[right=4 of percept, minimum width=2.5cm] (kb) {\bf Knowledge};
+                     \node[below=0.5 of kb.south west, anchor=mid east] (kbr) {robot};
+                     \node[below=0.5 of kb.south east, anchor=mid west] (kbh) {human};
+                     \draw[dotted] (kbr) to (figbottom -| kbr);
+                     \draw[dotted] (kbh) to (figbottom -| kbh);
+
+                     \fill[gray!10!white] (12,.5) rectangle (17,0 |- figbottom);
+                     \node[right=4.5 of kb] (plan) {\bf Plan};
+                     \node[below=0.5 of plan.south west, anchor=mid east] (probot) {robot};
+                     \node[below=0.5 of plan.south east, anchor=mid west] (phuman) {human};
+                     \draw[dotted] (probot) to (figbottom -| probot);
+                     \draw[dotted] (phuman) to (figbottom -| phuman);
+
+                     \node[right=5 of plan] (action) {\bf Actions};
+                     \node[below=0.5 of action.south west, anchor=mid east] (arobot) {robot};
+                     \node[below=0.5 of action.south east, anchor=west] (ahuman) {human\\(monitoring)};
+                     \draw[dotted] (arobot) to (figbottom -| arobot);
+                     \draw[dotted] (ahuman) to (figbottom -| ahuman);
+
+                     \draw[dashed] (-0.6,-1.2) --(24, -1.2);
+
+                     \node[anchor=east] at (-0.5, -3) (t1) {\Large $t_1$};
+                     \node[anchor=east, below=6 of t1] (t2) {\Large $t_2$};
+                     \node[anchor=east, below=6 of t2] (t3) {\Large $t_3$};
+                     \node[anchor=east, below=4 of t3] (t4) {\Large $t_4$};
+                     \node[anchor=east, below=5 of t4] (t5) {\Large $t_5$};
+
+                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                     %%% PERCEPTIONS
+                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         \node at (t1 -| percept) (cam1) {\includegraphics[height=2cm]{cleantable/manip_run_cam1.png}};
+         \node at (t2 -| percept) (cam2) {\includegraphics[height=2cm]{cleantable/manip_run_cam2.png}};
+         \node at (t3 -| percept) (cam3) {\includegraphics[height=2cm]{cleantable/manip_run_cam3.png}};
+         \node at (t4 -| percept) (cam4) {\includegraphics[height=2cm]{cleantable/manip_run_cam4.png}};
+         \node at (t5 -| percept) (cam5) {\includegraphics[height=2cm]{cleantable/manip_run_cam5.png}};
+
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%% KNOWLEDGE
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         \node[fill=white,align=left] at (cam1 -| kbr) (kb1) {\stmt{TAPE isVisible true}\\
+                                                    \stmt{TAPE isReachable true}\\
+                                                    \stmt{TAPE isOn TABLE}\\
+                                                    \stmt{BIN isVisible true}\\
+                                                    \stmt{BIN isReachable false}};
+
+         \node[fill=white,align=left] at (cam1 -| kbh) {\stmt{TAPE isVisible true}\\
+                                                    \stmt{TAPE isReachable false}\\
+                                                    \stmt{TAPE isOn TABLE}\\
+                                                    \stmt{BIN isVisible true}\\
+                                                    \stmt{BIN isReachable true}};
+
+         \node[fill=white,align=left] at (cam2 -| kbr) (kb2) {\stmt{ROBOT hasInHand TAPE}};
+
+
+         \node[fill=white,align=left] at (cam3 -| kbr) {\stmt{TAPE isReachable true}\\
+                                        \stmt{TAPE isVisible true} \\
+                                        \stmt{TAPE isOn TABLE}};
+
+         \node[fill=white,align=left ] at (cam3 -| kbh) (kb3) {\stmt{TAPE isReachable true}\\
+                                         \stmt{TAPE isVisible true}};
+
+         \node[fill=white,align=left] at (cam4 -| kbh) (kb4) {\stmt{HUMAN hasInHand TAPE}};
+
+         \node[fill=white,align=left] at (cam5 -| kbr)  {\stmt{TAPE isIn BIN}};
+         \node[fill=white,align=left] at (cam5 -| kbh) (kb5) {\stmt{TAPE isIn BIN}};
+
+         %%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%% PLANS
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         \node[fill=gray!10!white,below=1 of plan] (incoming) {\bf \Large Incoming goal \\ \it Clean the table!};
+
+         \node[anchor=north, plan, robot] at (cam1.south -| probot) (pr1) {\bf TAKE\\TAPE\\TABLE};
+         \node[anchor=north, plan, robot] at (cam2.south -| probot)  (pr2) {\bf PUTRV\\TAPE\\TABLE} edge[<-] (pr1);
+         \node[anchor=north, plan] at (cam3.south -| phuman) (ph1) {\bf TAKE\\TAPE\\TABLE} edge[<-] (pr2);
+         \node[anchor=north, plan]  at (cam4.south -| phuman) (ph2) {\bf PUT\\TAPE\\BIN} edge[<-] (ph1);
+
+         \node[fill=gray!10!white,anchor=north] at (cam5.south -| plan) (done) {\bf \Large Goal completed};
+
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%% ACTIONS
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         \only{
+             \node[fill=white] at (pr1 -| arobot) (ep1) {\it evaluate pre-conditions};
+
+         \node[below=0.1 of ep1] (mhp1) {%
+             \begin{tikzpicture}
+                 \node[fill=white] (title) {\bf motion planning};
+                 \node[below=0.1 of title.south west, label=below:{\tt PICK\_GOTO}] (mapg) {\includegraphics{cleantable/MHP_ARM_PICK_GOTO}};
+                 \node[fill=white,right=of mapg, label=below:{\tt TAKE\_TO\_FREE}] (mattf) {\includegraphics{cleantable/MHP_ARM_TAKE_TO_FREE}} edge[<-] (mapg);
+             \end{tikzpicture}
+         };
+         \node[fill=white,below=0.1 of mhp1] (me1) {\bf motion execution};
+         \node[fill=white,below=0.1 of me1] (ae1) {\it assess post-conditions};
+     }
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         \only{
+             \node[fill=white] at (pr2 -| arobot) (ep2) {\it evaluate pre-conditions};
+
+         \node[below=0.1 of ep2] (mhp2) {%
+             \begin{tikzpicture}
+                 \node[fill=white] (title) {\bf motion planning};
+                 \node[fill=white,below=0.1 of title, label=below:{\tt ESCAPE}] (maeo) {\includegraphics{cleantable/MHP_ARM_ESCAPE_OBJECT}};
+                 \node[left=of maeo, label=below:{\tt PLACE\_FROM\_FREE}] (mapff) {\includegraphics{cleantable/MHP_ARM_PLACE_FROM_FREE}} edge (maeo);
+                 \node[fill=white,right=of maeo, label=below:{\tt TO\_FREE}] (maf) {\includegraphics{cleantable/MHP_ARM_FREE}} edge[<-] (maeo);
+             \end{tikzpicture}
+         };
+         \node[fill=white,below=0.1 of mhp2] (me2) {\bf motion execution};
+         \node[fill=white,below=0.1 of me2] (ae2) {\it assess post-conditions};
+     }
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         \node[anchor=north] at (ph1 -| ahuman) (wait1) {%
+             \begin{tikzpicture}
+                 \node[fill=white] (title) {\it wait for pick\\ {\tt TAPE} \it from {\tt TABLE}};
+                 \node[below=0.1 of title] {\includegraphics{cleantable/wait_for_pick}};
+             \end{tikzpicture}
+         };
+
+         \node[anchor=north] at (ph2 -| ahuman) (wait2) {%
+             \begin{tikzpicture}
+                 \node[fill=white] (title) {\it wait for put\\ {\tt TAPE} \it into {\tt BIN}};
+                 \node[below=0.1 of title] {\includegraphics{cleantable/wait_for_throw}};
+             \end{tikzpicture}
+         };
+
+
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         %%% FLOW
+         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         \draw[dotted, ->, in=45, out=180] (incoming.west) to (kb1);
+         \draw[dotted, ->, bend right] (kb1) to (pr1);
+         \draw[dotted, ->, bend left] (pr1) to (ep1);
+         \draw[dotted, ->, in=45, out=180] (ae1.west) to (kb2);
+         \draw[dotted, ->, bend right] (kb2) to (pr2);
+         \draw[dotted, ->, bend left] (pr2) to (ep2);
+         \draw[dotted, ->, in=45, out=180] (ae2.west) to (kb3);
+         \draw[dotted, ->, bend right] (kb3) to (ph1);
+         \draw[dotted, ->, bend left] (ph1) to (wait1);
+         \draw[dotted, ->, in=-20, out=180] (wait1.west) to (kb4.east);
+         \draw[dotted, ->, bend right] (kb4) to (ph2);
+         \draw[dotted, ->, bend left] (ph2) to (wait2);
+         \draw[dotted, ->, in=20, out=180] (wait2.west) to (kb5);
+         \draw[dotted, ->, bend left] (kb5.east) to (done.north);
+
+
+     \end{tikzpicture}
+      }
+         \end{column}
+     \end{columns}
     \end{center}
 
 \end{frame}
-
-\videoframe[0.56]{figs/pinsoro-kinematics/clip_skel_01.mp4}
-
-\videoframe[0.56]{figs/pinsoro-kinematics/clip_01.mp4}
-
-\videoframe[0.56]{figs/pinsoro-kinematics/clip_skel_05.mp4}
-
-\videoframe[0.56]{figs/pinsoro-kinematics/clip_05.mp4}
-
-
-\begin{frame}{How hard?}
-
-    Building the right representation is hard, especially for multi-modal social
-    signals (essentially, an open research
-    question).
-
-    \pause
-
-Social signal processing is typically broken down in smaller, more manageable,
-    tasks:
-
-\begin{itemize}
-
-\item People detection
-\item Face detection
-\item Face recognition
-\item Gesture recognition
-\item Gaze detection
-\item Facial expression reading (wink, blink, talking, \ldots{})
-\item Detection of social signals from verbal communication
-\item Emotion recognition (from faces, movement, speech, \ldots{})
-\item \ldots{}
-\end{itemize}
-
-\end{frame}
-
-\imageframe{ros4hri-pipeline}
-
-
-\section{Case study: emotions}
-
-\begin{frame}{Paul Ekman and basic emotions}
-
-\href{https://en.wikipedia.org/wiki/Paul_Ekman}{Paul Ekman}, a
-psychologist, found that when shown facial expressions people across the
-world all recognised six \textbf{basic emotions}.
-
-    \only<1>{
-    \begin{center}
-        \includegraphics[width=0.55\linewidth]{emotions/ekman_6_basic_emotions}
-
-        \source{http://emotionresearcher.com/}{emotionresearcher.com}
-    \end{center}
 }
 
-\pause
-
-\begin{center}
-\textbf{Anger, disgust, fear, happiness, sadness and surprise}.
-\end{center}
-
-Some other emotion are less universally recognised, e.g.~contempt.
-
-\pause
-
-\Large
+\begin{frame}{``Cleaning the table''...}
 \centering
-How can we process this social signal?
-\end{frame}
+
+\resizebox{!}{0.75\paperheight}{%
+\begin{tikzpicture}[
+        >=latex,
+        every edge/.style={draw, ultra thick, ->},
+        every node/.style={align=center},
+        robot/.style={fill=hriSec2Comp!50},
+        plan/.style={draw,
+                     thick,  
+                     circle, 
+                     font=\sf,
+                     align=center,
+                     fill=hriSec3CompDark!50, 
+                     minimum size=1cm, 
+                     inner sep=0.1cm}
+        ]
+
+        \coordinate<1> (figbottom) at (-0.5, -28.5);
+        \coordinate<2-5> (figbottom) at (-0.5, -10.5);
+        \node<2-5> at (0,5) {};
+        \node<2-5> at ($(figbottom) + (0,-5)$) {};
 
 
+        \fill[gray!10!white] (4.6,.5) rectangle (figbottom);
+
+        \path (-0.5,0) edge (figbottom) node[sloped, above left, rotate=90] {\large\bf time};
+
+        \node at (2,0) (percept) {\bf Perception};
+            \node[below=0.5 of percept.south west, anchor=mid] {camera};
+            \node[below=0.5 of percept.south east, anchor=mid] {3D model};
+
+        \node[right=4 of percept, minimum width=2.5cm] (kb) {\bf Knowledge};
+            \node[below=0.5 of kb.south west, anchor=mid east] (kbr) {robot};
+            \node[below=0.5 of kb.south east, anchor=mid west] (kbh) {human};
+            \draw[dotted] (kbr) to (figbottom -| kbr);
+            \draw[dotted] (kbh) to (figbottom -| kbh);
+
+        \fill[gray!10!white] (12,.5) rectangle (17,0 |- figbottom);
+        \node[right=4.5 of kb] (plan) {\bf Plan};
+            \node[below=0.5 of plan.south west, anchor=mid east] (probot) {robot};
+            \node[below=0.5 of plan.south east, anchor=mid west] (phuman) {human};
+            \draw[dotted] (probot) to (figbottom -| probot);
+            \draw[dotted] (phuman) to (figbottom -| phuman);
+
+        \node[right=5 of plan] (action) {\bf Actions};
+            \node[below=0.5 of action.south west, anchor=mid east] (arobot) {robot};
+            \node[below=0.5 of action.south east, anchor=west] (ahuman) {human\\(monitoring)};
+            \draw[dotted] (arobot) to (figbottom -| arobot);
+            \draw[dotted] (ahuman) to (figbottom -| ahuman);
+
+        \draw[dashed] (-0.6,-1.2) --(24, -1.2);
+
+        \node<1,2>[anchor=east] at (-0.5, -3) (t1) {\Large $t_1$};
+        \node<1,2>[anchor=east, below=6 of t1] (t2) {\Large $t_2$};
+        \node<3>[anchor=east] at (-0.5, -3) (t2) {\Large $t_2$};
+        \node<1,3>[anchor=east, below=6 of t2] (t3) {\Large $t_3$};
+        \node<4>[anchor=east] at (-0.5, -3) (t3) {\Large $t_3$};
+        \node<1,4>[anchor=east, below=4 of t3] (t4) {\Large $t_4$};
+        \node<5>[anchor=east] at (-0.5, -3) (t4) {\Large $t_4$};
+        \node<1,5>[anchor=east, below=5 of t4] (t5) {\Large $t_5$};
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% PERCEPTIONS
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        \node<1,2> at (t1 -| percept) (cam1) {\includegraphics[height=2cm]{cleantable/manip_run_cam1.png}};
+        \node<1,3> at (t2 -| percept) (cam2) {\includegraphics[height=2cm]{cleantable/manip_run_cam2.png}};
+        \node<1,4> at (t3 -| percept) (cam3) {\includegraphics[height=2cm]{cleantable/manip_run_cam3.png}};
+        \node<1,5> at (t4 -| percept) (cam4) {\includegraphics[height=2cm]{cleantable/manip_run_cam4.png}};
+        \node<1,5> at (t5 -| percept) (cam5) {\includegraphics[height=2cm]{cleantable/manip_run_cam5.png}};
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% KNOWLEDGE
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        \node<1,2>[fill=white,align=left] at (cam1 -| kbr) (kb1) {\stmt{TAPE isVisible true}\\
+                                                        \stmt{TAPE isReachable true}\\
+                                                        \stmt{TAPE isOn TABLE}\\
+                                                        \stmt{BIN isVisible true}\\
+                                                        \stmt{BIN isReachable false}};
+
+        \node<1,2>[fill=white,align=left] at (cam1 -| kbh) {\stmt{TAPE isVisible true}\\
+                                                        \stmt{TAPE isReachable false}\\
+                                                        \stmt{TAPE isOn TABLE}\\
+                                                        \stmt{BIN isVisible true}\\
+                                                        \stmt{BIN isReachable true}};
+
+        \node<1,3>[fill=white,align=left] at (cam2 -| kbr) (kb2) {\stmt{ROBOT hasInHand TAPE}};
 
 
+        \node<1,4>[fill=white,align=left] at (cam3 -| kbr) {\stmt{TAPE isReachable true}\\
+                                            \stmt{TAPE isVisible true} \\
+                                            \stmt{TAPE isOn TABLE}};
 
+        \node<1,4>[fill=white,align=left ] at (cam3 -| kbh) (kb3) {\stmt{TAPE isReachable true}\\
+                                             \stmt{TAPE isVisible true}};
 
-\section{Classification}
+        \node<1,5>[fill=white,align=left] at (cam4 -| kbh) (kb4) {\stmt{HUMAN hasInHand TAPE}};
 
-\begin{frame}{Classification}
+        \node<1,5>[fill=white,align=left] at (cam5 -| kbr)  {\stmt{TAPE isIn BIN}};
+        \node<1,5>[fill=white,align=left] at (cam5 -| kbh) (kb5) {\stmt{TAPE isIn BIN}};
 
-Social signal processing often relies on \textbf{classification.}
+        %%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% PLANS
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{itemize}
-    \item \href{https://en.wikipedia.org/wiki/Statistical_classification}{\textbf{Classification}}
-        is deciding on which \textbf{category} a new observation belongs to
-        based on training data.
+        \node<1,2>[fill=gray!10!white,below=1 of plan] (incoming) {\bf \Large Incoming goal \\ \it Clean the table!};
 
-    \item The training data contains data and known categories.
-    \item Classification is a \textbf{supervised} learning algorithm.
-\end{itemize}
+        \node<1,2>[anchor=north, plan, robot] at (cam1.south -| probot) (pr1) {\bf TAKE\\TAPE\\TABLE};
+        \node<1,3>[anchor=north, plan, robot] at (cam2.south -| probot)  (pr2) {\bf PUTRV\\TAPE\\TABLE} edge[<-] (pr1);
+        \node<1,4>[anchor=north, plan] at (cam3.south -| phuman) (ph1) {\bf TAKE\\TAPE\\TABLE} edge[<-] (pr2);
+        \node<1,5>[anchor=north, plan]  at (cam4.south -| phuman) (ph2) {\bf PUT\\TAPE\\BIN} edge[<-] (ph1);
 
-\pause
+        \node<1,5>[fill=gray!10!white,anchor=north] at (cam5.south -| plan) (done) {\bf \Large Goal completed};
 
-Examples:
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% ACTIONS
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\scriptsize
-\begin{itemize}
+        \only<1,2>{
+        \node[fill=white] at (pr1 -| arobot) (ep1) {\it evaluate pre-conditions};
 
-\item An incoming tweet needs to classified as being positive or negative.
-\item An radar ping of a flying objects needs to be classified as belonging
-  to one of \emph{n} possible planes.
-\item The prosody of speech needs to be classified as belonging to one of
-  six basic categories of emotion (happy, sad, angry, bored, surprised,
-  neutral).
-\item A gesture filmed through a camera needs to be classified as meaning
-  stop, go, left or right.
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Classification: example}
-
-\begin{itemize}
-\item Two dimensional problem
-\item Two categories, with training data for both categories
-\item To which category does a new observation belong?
-\end{itemize}
-
-    \begin{center}
-        \resizebox{0.5\linewidth}{!}{
-            \begin{tikzpicture}[>=latex,
-                starmarker/.style={star, fill=hriSec2Comp,opacity=0.5,inner sep=0,minimum size=4pt}]
-
-                %\draw[help lines] (0,0) grid (5,4);
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.2,2.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (0.6,0.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-
-                \only<1-2,4->{
-                    \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-                    \fill [hriSec2, opacity=0.5] (4.5,3.5) circle (2pt);
-                }
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.3,0.6) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.5,1.4) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.4,2.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-
-                \only<1-3>{
-                    \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-                    \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-                }
-                \only<4->{
-                    \fill [hriSec2, opacity=0.5] (2.2,2.5) circle (2pt);
-                    \fill [hriSec2, opacity=0.5] (1.3,2.2) circle (2pt);
-                }
-
-
-                \only<1>{
-                    \fill (3.5,3) circle (2pt) node[above] {?};
-                }
-
-                \only<2>{
-                    \draw[dashed, ultra thick] (0,0.1) -- (4.9,4);
-                    \fill[hriSec3Comp] (3.5,3) circle (3pt);
-                }
-
-                \only<3->{
-                \node[starmarker] at(2.8,3.5) {};
-                \node[starmarker] at(3.2,2.6) {};
-                \node[starmarker] at(3.7,2.5) {};
-                \node[starmarker] at(4.8,2.3) {};
-                \node[starmarker] at(4.2,3.5) {};
-                \node[starmarker] at(4.7,3.2) {};
-                \node[starmarker] at(3.6,3.5) {};
-                \node[starmarker] at(3.2,3.0) {};
-            }
-
-                \only<3>{
-                \coordinate (center) at (3,2.5);
-                    \draw[dashed, ultra thick] (0,0.1) -- (center);
-                    \draw[dashed, ultra thick] (2.1,4) -- (center);
-                    \draw[dashed, ultra thick] (5,2) -- (center);
-                }
-
-                \only<4>{
-                    \draw[ultra thick, dashed] svg[scale=0.355mm] {M 0,0 C 7.3028978,5.4871928 17.986558,18.924336 25.712718,23.631806 33.180198,27.981126 42.096418,29.772386 48.918988,35.157436 53.234728,39.486306 53.152318,48.037756 47.022748,50.669426 42.040828,52.174296 36.443098,53.302996 33.138128,57.811566 29.262578,61.437306 31.018648,68.735086 36.313848,69.650946 45.513978,70.336506 52.317528,79.815856 61.890318,78.092016 67.994798,76.405086 66.315798,68.913296 65.206548,64.346256 62.816378,59.430726 65.265748,53.196516 71.506418,55.666566 76.735423,57.642746 77.207603,62.923806 82.494663,67.005556 87.781723,71.087306 97.769793,65.300896 103.85227,64.480036 109.93475,63.659176 113.08322,69.782766 115.38846,74.251266 119.51535,82.521786 120.32667,91.925786 123.66302,100.4599 126.136,107.56288 135.65151,102.31662 131.03155,96.353476 128.47853,90.355456 123.56513,84.297766 125.88953,77.387966 127.40319,68.340166 132.79437,57.935476 141.71719,53.730616};
-                    \draw[ultra thick, dashed] svg[scale=0.355mm] {M 84.116373,67.870526 C 84.388083,71.283156 84.773743,74.838716 83.492033,78.110256 82.006413,83.150896 79.611653,88.027626 75.899043,91.805036 73.482483,94.619536 71.510448,97.822816 70.142548,101.27341 69.330828,105.09004 70.025558,108.99486 70.135548,112.8405};
-                }
-
-
-
+        \node[below=0.1 of ep1] (mhp1) {%
+            \begin{tikzpicture}
+                \node[fill=white] (title) {\bf motion planning};
+                \node[below=0.1 of title.south west, label=below:{\tt PICK\_GOTO}] (mapg) {\includegraphics{cleantable/MHP_ARM_PICK_GOTO}};
+                \node[fill=white,right=of mapg, label=below:{\tt TAKE\_TO\_FREE}] (mattf) {\includegraphics{cleantable/MHP_ARM_TAKE_TO_FREE}} edge[<-] (mapg);
             \end{tikzpicture}
+        };
+        \node[fill=white,below=0.1 of mhp1] (me1) {\bf motion execution};
+        \node[fill=white,below=0.1 of me1] (ae1) {\it assess post-conditions};
         }
-    \end{center}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        \only<1,3>{
+        \node[fill=white] at (pr2 -| arobot) (ep2) {\it evaluate pre-conditions};
 
-
-    \only<2> {
-        When categories can be linearly separated, we have a very easy
-        classification problem.
-    }
-
-    \only<3> {
-        Three or more can still be linearly separated.
-    }
-
-
-    \only<4-> {
-        \textbf{But what if categories are not linearly separable?}
-    }
-
-\end{frame}
-
-\begin{frame}{Two classification methods}
-
-Two methods will be explained here:
-
-\begin{itemize}
-
-\item $k$-nearest Neighbours (kNN)
-\item Support Vector Machines (SVM)
-\end{itemize}
-
-But there are hundreds of classifiers
-
-\begin{itemize}
-
-\item Decision trees
-\item Random forest
-\item Bayes classifiers
-\item Neural Networks
-\item \ldots{}
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{$k$-nearest Neighbours}
-
-
-When an observation comes in, calculate the distance to the $k$ nearest
-neighbours. The observation belongs to the class the most frequent amongst neighbours.
-
-    \begin{center}
-        \resizebox{0.5\linewidth}{!}{
-            \begin{tikzpicture}[>=latex,
-                starmarker/.style={star, fill=hriSec2Comp,opacity=0.5,inner sep=0,minimum size=4pt}]
-
-                %\draw[help lines] (0,0) grid (5,4);
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.2,2.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (0.6,0.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-
-                \fill [hriSec2, opacity=0.5] (1.3,2.2) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,3.5) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.2,2.5) circle (2pt);
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.3,0.6) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.5,1.4) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.4,2.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-
-
-
-                \node[starmarker] at(2.8,3.5) {};
-                \node[starmarker] at(3.2,2.6) {};
-                \node[starmarker] at(3.7,2.5) {};
-                \node[starmarker] at(4.8,2.3) {};
-                \node[starmarker] at(4.2,3.5) {};
-                \node[starmarker] at(4.7,3.2) {};
-                \node[starmarker] at(3.6,3.5) {};
-                \node[starmarker] at(3.2,3.0) {};
-
-                \only<1>{
-                    \fill (3.5,3) circle (2pt);
-                }
-                \only<2>{
-                    \node[starmarker,opacity=1] at(3.5,3) {};
-                    \fill (1.5,3) circle (2pt);
-                }
-                \only<3>{
-                    \node[starmarker,opacity=1] at(3.5,3) {};
-                    \fill [hriSec3Comp, opacity=1] (1.5,3) rectangle +(3.5pt,3.5pt);
-                    \fill (1.8,1.9) circle (2pt);
-                }
-                \only<4>{
-                    \node[starmarker,opacity=1] at(3.5,3) {};
-                    \fill [hriSec3Comp, opacity=1] (1.5,3) rectangle +(3.5pt,3.5pt);
-                    \fill (1.8,1.9) circle (2pt) node[above] {?};
-                    %\fill [hriSec3Comp, opacity=1] (1.8,1.9) rectangle +(3.5pt,3.5pt);
-                }
-
-
+        \node[below=0.1 of ep2] (mhp2) {%
+            \begin{tikzpicture}
+                \node[fill=white] (title) {\bf motion planning};
+                \node[fill=white,below=0.1 of title, label=below:{\tt ESCAPE}] (maeo) {\includegraphics{cleantable/MHP_ARM_ESCAPE_OBJECT}};
+                \node[left=of maeo, label=below:{\tt PLACE\_FROM\_FREE}] (mapff) {\includegraphics{cleantable/MHP_ARM_PLACE_FROM_FREE}} edge (maeo);
+                \node[fill=white,right=of maeo, label=below:{\tt TO\_FREE}] (maf) {\includegraphics{cleantable/MHP_ARM_FREE}} edge[<-] (maeo);
             \end{tikzpicture}
+        };
+        \node[fill=white,below=0.1 of mhp2] (me2) {\bf motion execution};
+        \node[fill=white,below=0.1 of me2] (ae2) {\it assess post-conditions};
         }
-    \end{center}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\end{frame}
-
-\begin{frame}[fragile]{Python implementation of $k$-nearest neighbours}
-
-    Complete example, with the data above:
-
-\begin{columns}
-    \begin{column}{0.4\linewidth}
-\begin{pythoncode}
-""" data.csv:
-2.2,1.3,0 -> circles
-3.2,2.3,0
-...
-
-2.3,3.2,1 -> squares
-0.3,0.6,1
-...
-
-2.8,3.5,2 -> stars
-3.2,2.6,2
-...
-"""
-\end{pythoncode}
-        
-    \end{column}
-    \begin{column}{0.6\linewidth}
-\begin{pythoncode}
-from numpy import genfromtxt
-from sklearn import neighbors
-
-csv = genfromtxt('data.csv', delimiter=',')
-data = csv[:,:2]
-categories = csv[:,2]
-
-inputs = [ [3.5,3], [1.5,3], [1.8,1.9] ]
-
-k = 3
-knns = neighbors.KNeighborsClassifier(k)
-knns.fit(data, categories)
-
-predictions = knns.predict(inputs)
-print(predictions)
-
->>>  [2.  1.  1.]
-
-\end{pythoncode}
-    \end{column}
-\end{columns}
-
-
-
-\end{frame}
-
-\begin{frame}{Choice of $k$ and weights}
-
-\begin{center}
-    \includegraphics[width=0.45\linewidth]{knns_1}
-    \includegraphics[width=0.45\linewidth]{knns_2}
-
-    \includegraphics[width=0.45\linewidth]{knns_3}
-    \includegraphics[width=0.45\linewidth]{knns_4}
-\end{center}
-\end{frame}
-
-
-    \begin{frame}{$k$-nearest neighbours: summary}
-
-\begin{itemize}
-    \item<+-> $k$-nearest Neighbours usually does really well on a large number of
-    classification problem, but can underperform near the classification
-    boundary.
-
-    \item<+-> might struggle with very large datasets, as it needs to calculate the
-    distance to all training data every time you classify a new observation
-    (some work around are available, relying on approximate distances and
-    optimisation of the algorithmic code)
-
-    \item<+-> commonly, the neighbours are weighted with the inverse of the
-        distance $\frac{1}{d}$ to the observation (\ie closer neighbours have
-        stronger influence). With \python{sklearn}:
-        \python{neighbors.KNeighborsClassifier(k, weights='distance')}
-
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Support Vector Machines}
-
-A very popular classification algorithm introduced by Vapnik in 1992.
-
-\pause
-
-Often (but not always) provides very impressive classification
-performance on reasonably sized datasets.
-
-\end{frame}
-
-\begin{frame}{SVM principle}
-
-\only<1-2>{
-Three different classification lines. All are correct, but is there any
-reason why one is better than the others?
-}
-
-\only<3>{
-
-The classifier in the middle is called the \textbf{maximum margin
-classifier}.
-
-The data points nearest the classifier are called \textbf{support
-vectors}.
-
-}
-
-
-    \begin{center}
-        \only<1>{
-        \resizebox{0.3\linewidth}{!}{
-            \begin{tikzpicture}[>=latex]
-
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-
-                \draw[dashed, ultra thick] (0,1.8) -- (4.9,2.8);
-
+        \node<1,4>[anchor=north] at (ph1 -| ahuman) (wait1) {%
+            \begin{tikzpicture}
+                \node[fill=white] (title) {\it wait for pick\\ {\tt TAPE} \it from {\tt TABLE}};
+                \node[below=0.1 of title] {\includegraphics{cleantable/wait_for_pick}};
             \end{tikzpicture}
-        }
-        }
-        \resizebox{0.3\linewidth}{!}{
-            \begin{tikzpicture}[>=latex]
+        };
 
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-
-                \only<2->{
-                \draw[red,opacity=0.5,line width=25pt] (0,0.65) -- (4.9,3.45);
-                }
-                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-
-                \only<3>{
-                    \draw [red, thick] (2.25,2.55) circle (5pt);
-                    \draw [red, thick] (4.1,2.4) circle (5pt);
-                    \draw [red, thick] (2.2,1.3) circle (5pt);
-
-                }
-
+        \node<1,5>[anchor=north] at (ph2 -| ahuman) (wait2) {%
+            \begin{tikzpicture}
+                \node[fill=white] (title) {\it wait for put\\ {\tt TAPE} \it into {\tt BIN}};
+                \node[below=0.1 of title] {\includegraphics{cleantable/wait_for_throw}};
             \end{tikzpicture}
-        }
-        \only<1>{
-        \resizebox{0.3\linewidth}{!}{
-            \begin{tikzpicture}[>=latex]
-
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-
-                \draw[dashed, ultra thick] (1.5,0) -- (3.2,4);
-
-            \end{tikzpicture}
-        }
-        }
-    \end{center}
-
-\only<1-2> {
-
-Intuitively, the line that is most distant to the training data is the
-best division.
-
-\onslide<2>{
-The empty area near the division line is symmetric. It forms a bar in
-2D space, a cylinder in 3D space, and a hyper-cylinder in n-D space.
-}
-
-}
-\only<3> {
-Two observations
-
-\begin{itemize}
-
-\item The margins should be as large as possible.
-\item The support vectors are the most useful datapoints because they are
-  the ones that we might get wrong.
-\end{itemize}
-
-}
-
-\end{frame}
-
-\begin{frame}{Linear classifier}
-
-    \begin{center}
-        \resizebox{0.3\linewidth}{!}{
-            \begin{tikzpicture}[>=latex]
-
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-
-                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-
-            \end{tikzpicture}
-        }
-        \hspace{2em}
-        \only<4-5>{
-        \resizebox{0.4\linewidth}{!}{
-                \includegraphics[width=\linewidth]{svm-hyperplane}
-%            \begin{tikzpicture}[>=latex]
-%
-%                %\draw[help lines] (-1,-1) grid (5,4);
-%                \draw[thick, ->] (0,0) -> (5.2,0);
-%                \draw[thick, ->] (0,0) -> (0,4.2);
-%                \draw[thick, ->] (0,0) -> (-1.5,-1.2);
-%
-%                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-%                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-%                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-%                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-%                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-%                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-%
-%                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-%                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-%                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-%                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-%                \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-%                \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-%
-%                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-%                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-%                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-%                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-%
-%            \end{tikzpicture}
-        }
-        }
-    \end{center}
-
-\only<1>{
-
-    A linear classifier for two categories (\textbf{binary classifier}) can be written as
-    $f(\mathbf{x}) = \mathbf{w} \cdot \mathbf{x} + b$.
-
-\begin{itemize}
-
-    \item $\mathbf{w} \cdot \mathbf{x} = \sum_i w_i x_i$. This is called the
-        scalar product or inner product. Can also be written as a matrix
-        multiplication $\mathbf{w}^T\mathbf{x}$.
-    \item $\mathbf{w}$ is a \textbf{weight vector}, tilting the line
-    \item $\mathbf{x}$ is a data point (of dimension $n$)
-    \item $b$ is a \textbf{bias}, lifting the line up along the $y$-axis
-\end{itemize}
-
-}
-\only<2-3>{
-    $\mathbf{w}$\bubblemark{weightvector} has to be calculated such that:
-\[
-f(\mathbf{x}) < 0 \Rightarrow \mathbf{x} \in \{\blacksquare\}
-\]
-\[
-f(\mathbf{x}) > 0 \Rightarrow \mathbf{x} \in \{\circ\}
-\]
-
-\bubble<3>[115][0.8][4cm]{weightvector}{for kNNs, we have to carry along the training data; with a linear classifier, once $\mathbf{w}$ is found, we can discard the training data}
-}
-
-
-
-\only<4-5>{
-
-    \begin{itemize}
-        \item In 2D, the \textbf{discriminant} is a line
-        \item In 3D, the discriminant is a plane
-        \item In n-D\bubblemark{dimensions}, the discriminant is a hyperplane
-    \end{itemize}
-
-\bubble<5>[160][1][10cm]{dimensions}{the 'dimensions' are the \textbf{features} of our inputs, \eg for a human, the size, age, skin colour, gender...}
-}
-
-\end{frame}
-
-\begin{frame}{Support vector classifier}
-
-    \begin{center}
-        \resizebox{0.3\linewidth}{!}{
-            \begin{tikzpicture}[>=latex]
-
-                \draw[thick, ->] (0,0) -> (5.2,0);
-                \draw[thick, ->] (0,0) -> (0,4.2);
-
-                \fill [hriSec2, opacity=0.5] (2.2,1.3) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.5,0.4) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (2.8,0.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (3.8,1.7) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.5,1.0) circle (2pt);
-                \fill [hriSec2, opacity=0.5] (4.1,2.4) circle (2pt);
-
-                \fill [hriSec3Comp, opacity=0.5] (2.3,3.2) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (0.7,2.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.7,3.8) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.0,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (2.2,2.5) rectangle +(3.5pt,3.5pt);
-                \fill [hriSec3Comp, opacity=0.5] (1.3,2.2) rectangle +(3.5pt,3.5pt);
-
-
-                \draw[red,opacity=0.5,line width=25pt] (0,0.65) -- (4.9,3.45);
-                \draw[dashed, ultra thick] (0,0.65) -- (4.9,3.45);
-
-                    \draw [red, thick] (2.25,2.55) circle (5pt);
-                    \draw [red, thick] (4.1,2.4) circle (5pt);
-                    \draw [red, thick] (2.2,1.3) circle (5pt);
-
-
-
-
-            \end{tikzpicture}
-        }
-    \end{center}
-
-
-In a SVM, we want to \textbf{maximise the margin} $M$. We can rewrite the linear
-classifier.
-    
-If $\mathbf{w}^T\mathbf{x} + b \geq M$, then an observation belongs to
-$\blacksquare$, for $\mathbf{w}^T\mathbf{x} + b \leq -M$, it belongs to
-$\circ$.
-
-\pause
-A point $\mathbf{x}^\blacksquare$ that lies on the $\blacksquare$ class
-    boundary line, \ie $\mathbf{w}^T\mathbf{x}^\blacksquare + b = M$, is
-a \textbf{support vector}.
-
-
-\end{frame}
-
-\begin{frame}{Finding the optimal classifier}
-
-The problem is to find the \textbf{optimal} values for $\mathbf{w}$ and
-$b$.
-
-The classifier needs to satisfy two conditions
-
-\begin{itemize}
-
-\item It needs to correctly classify the training data,
-\item and needs the margin from the classifier to be as large as possible.
-\end{itemize}
-
-\pause
-
-A \textbf{quadratic programming solver} is used to find the optimal
-values for $\mathbf{w}$ and $b$.
-
-{\footnotesize \href{http://www.robots.ox.ac.uk/~az/lectures/ml/lect2.pdf}{Oxford lecture on SVM} to learn more about the mathematical
-    formulation and the \emph{perceptron algorithm}.}
-
-\end{frame}
-
-\begin{frame}{Transformation of data}
-
-\begin{itemize}
-
-    \item Unfortunately, \emph{all this still assumes that the data is linearly
-        separable}. But what if it is not, and we are not prepared for a few
-  misclassifications?
-\item The solution is to \textbf{transform} the data: move data points in
-  the n-D space until the training data is linearly separable again
-\end{itemize}
-
-    \begin{center}
-        \includegraphics[width=0.8\linewidth]{svm-kernels}
-    \end{center}
-\end{frame}
-
-\begin{frame}{Feature maps}
-
-    \onslide<1-4>{
-We can transform data points (= move them) or even add more dimensions using
-a function $\theta(\mathbf{x}_i)$ from input $\mathbf{x}_i$. $\theta$ is a \textbf{feature
-map}.
-}
-
-\only<1-2>{
-Example:
-    \onslide<2>{
-    \[
-        \theta(\mathbf{x}_i) = [\mathbf{x}_i, \mathbf{x}^2_i]
-    \]
-    }
-
-\begin{center}
-    \includegraphics<1>[width=0.8\linewidth]{svm-kernels-separation-0}
-    \includegraphics<2>[width=0.8\linewidth]{svm-kernels-separation}
-\end{center}
-
-
-    \onslide<2>{
-$\rightarrow$ now, linearly separable
-}
-}
-
-\only<3-4>{
-Example:
-    \onslide<4>{
-    \[
-        \theta(<x_i, y_i>) = [x_i, y_i, x^2_i + y^2_i]
-    \]
-    }
-
-\begin{center}
-    \includegraphics<3>[width=0.7\linewidth]{svm-kernel-3d-0}
-    \includegraphics<4>[width=0.7\linewidth]{svm-kernel-3d}
-\end{center}
-
-    \onslide<4>{
-$\rightarrow$ now, linearly separable
-    }
-}
-\only<5>{
-
-
-If we know something about the structure of the data, then we might be able to identify
-feature maps that would be effective.
-
-Often however we do not have such domain knowledge.
-}
-
-\end{frame}
-
-\begin{frame}{The kernel trick}
-
-\[
-        \theta: \mathbf{x} \rightarrow  \theta(\mathbf{x}), \mathbb{R}^d \rightarrow \mathbb{R}^D
-\]
-
-\[
-    f(\mathbf{x}) = \mathbf{w}^T \theta(\mathbf{x}) + b
-\]
-
-\only<1>{
-\begin{itemize}
-    \item Simply map $\mathbf{x}$ to $\theta(\mathbf{x})$ where data is separable
-    \item Solve for $\mathbf{w}$ in high dimensional space $\mathbb{R}^D$
-    \item If $D >> d$ then there are many more parameters to learn for $\mathbf{w}$. Can this be avoided?
-\end{itemize}
-}
-
- \only<2>{
-    \href{http://www.robots.ox.ac.uk/~az/lectures/ml/lect3.pdf}{It can be shown
-    that} you do not actually need to calculate explicitely
-    $\theta(\mathbf{x})$. Instead, you only need $\theta(\mathbf{x}_i)^T
-    \theta(\mathbf{x}_j)$ (with $\mathbf{x}_i$ the training data) to compute
-    $\mathbf{w}$.
-
-
-    We call the \textbf{kernel function} $K(\mathbf{x}_i,\mathbf{x}_j) =
-    \theta(\mathbf{x}_i)^T \theta(\mathbf{x}_j)$.  The SVM classifier can be
-    learnt and applied with only $K$, and the complexity depends only on $N$
-    (size of training data), not on $D$.  }
-
-\end{frame}
-
-\begin{frame}{Standard kernels}
-
-\begin{itemize}
-
-    \item \textbf{Polynomials} up to some degree $s$ in the
-  elements $x_k$ of the input vector (\eg $x^3_3$ or $x_1 x_4$). This can be written as:
-
-    \[
-        K(x, y) = (1 + x^Ty)^s
-    \]
-
-\item \textbf{Sigmoid functions} of the $x_k$ with parameters $\kappa$ and $\delta$, and
-  kernel:
-    \[
-        K(x, y) = tanh(\kappa x^T y - \delta)
-    \]
-\item \textbf{Radial basis function} expansions of the $x_k$ with parameter $\sigma$
-  and kernel:
-    \[
-        K(x, y) = exp(- \frac{(x-y)^2}{2\sigma^2})
-    \]
-
-(a Gaussian kernel)
-
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Comparison of kernel functions}
-    \begin{center}
-        \includegraphics[width=\linewidth]{svm_comparison}
-    \end{center}
-\end{frame}
-
-\begin{frame}[fragile]{Python implementation of Support Vector Machine}
-
-\begin{onlyenv}<1>
-
-\begin{pythoncode}
-from sklearn import svm
-
-C = 1.0  # SVM regularization parameter 
-         # +- 'how acceptable are misclassification'
-clf = svm.SVC(kernel='linear', C=C) # kernel='poly', 'rbf', 'sigmoid'...
-
-clf.fit(data, categories)
-
-predictions = clf.predict(inputs)
-\end{pythoncode}
-
-\end{onlyenv}
-
-\begin{onlyenv}<2>
-    Complete example, with our data:
-
-\begin{columns}
-    \begin{column}{0.4\linewidth}
-\begin{pythoncode}
-""" data.csv:
-2.2,1.3,0 -> circles
-3.2,2.3,0
-...
-
-2.3,3.2,1 -> squares
-0.3,0.6,1
-...
-
-2.8,3.5,2 -> stars
-3.2,2.6,2
-...
-"""
-\end{pythoncode}
-        
-    \end{column}
-    \begin{column}{0.6\linewidth}
-\begin{pythoncode}
-from numpy import genfromtxt
-from sklearn import svm
-
-csv = genfromtxt('data.csv', delimiter=',')
-data = csv[:,:2]
-categories = csv[:,2]
-
-
-inputs = [ [3.5,3], [1.5,3], [1.8,1.9] ]
-
-clf = svm.SVC(kernel='rbf',
-              gamma = 0.7,
-              C=1.0)
-clf.fit(data, categories)
-
-predictions = clf.predict(inputs)
-print(predictions)
-
->>>  [2.  1.  0.]
-
-\end{pythoncode}
-    \end{column}
-\end{columns}
-
-\end{onlyenv}
-
-
-\end{frame}
-
-%\begin{frame}{Choosing the kernel}
-%
-%
-%Choosing which kernel to use and the parameters in these kernels is a tricky
-%    problem. While there reasoning based on the
-%    \href{https://en.wikipedia.org/wiki/Vapnik-Chervonenkis_dimension}{Vapnik--Chernik
-%    dimension} (a measure of the \emph{capacity} of your model) that can be
-%    applied, most people just experiment with different values and find one that
-%    works.
-%
-%\end{frame}
-
-%\begin{frame}{Complexity of SVMs}
-%
-%
-%SVMs do not work well on extremely large datasets, since the computations do
-%    not scale well with the number of training examples, and so become
-%    computationally very expensive.
-%
-%\begin{exampleblock}{Complexity}
-%Training a SVM requires $O(m^3)$\bubblemark{bigo} operations and $O(m^2)$
-%memory, with $m$ being the number of training samples.
-%    
-%For example with a NVidia GTX1080Ti ($\approx$350GFLOPs):
-%
-%    \begin{itemize}
-%        \item 10,000 training samples $\rightarrow$ $10^{12}$ operations
-%            $\rightarrow$ 2.9s ($10^{12}$ memory units).
-%        \item 100,000 samples $\rightarrow$ 2900s
-%        \item 1,000,000 samples $\rightarrow$ 2900000s $\equiv$ 33 days
-%    \end{itemize}
-%\end{exampleblock}
-%
-%\bubble<4>[190][1][6cm]{bigo}{For more information on ``big-O notation'',
-%see \href{https://en.wikipedia.org/wiki/Time_complexity}{complexity of
-%algorithms}}
-%
-%
-%\end{frame}
-
-
-\begin{frame}{Clustering vs classification}
-
-\textbf{Clustering} is sometimes confused with \textbf{classification}.  (often
-    because some algorithms have similar names,e.g. \emph{k-means clustering}
-    and \emph{k-nearest neighbours}).
-
-\textbf{Clustering} starts from unlabelled data points and tries to find
-    $k$ clusters in the data $\rightarrow$ \textbf{unsupervised learning}.
-
-
-$\rightarrow$ Used to find patterns in the data.
-
-    \begin{center}
-        \includegraphics[width=0.3\linewidth]{clustering-0}
-        $\rightarrow$
-        \includegraphics[width=0.3\linewidth]{clustering-1}
-    \end{center}
-
-
-    \textbf{Classification} starts from training data ($\rightarrow$
-    \textbf{supervised learning}), and attempts to correctly classify an
-    unknown observation.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\section[Emotion classifier]{Let's build our own emotion classifier from scratch}
-
-\begin{frame}{Shopping list}
-
-    \begin{center}
-        {\bf What do we need?}
-    \end{center}
-
-    \pause
-
-    \begin{itemize}
-        \item<+-> a dataset of labelled faces
-        \item<+-> some pre-processing to normalise the faces
-        \item<+-> features to extract
-        \item<+-> a classifier
-    \end{itemize}
-\end{frame}
-
-\imageframe[color=black]{emotions/google-emotions-query}
-\imageframe[color=black]{emotions/emotions_dataset}
-\imageframe[color=black]{emotions/emotions_dataset_aligned}
-
-
-\begin{frame}{Features: Facial Action Units}
-
-    \newcommand{\au}[1]{
-        \includegraphics[width=2cm]{emotions/au/au-0#1.jpg}
-    }
-
-    \begin{columns}
-        \begin{column}{0.5\linewidth}
-            \begin{center}
-
-                \scriptsize
-                \begin{tabular}{@{}p{0.3cm}p{2.5cm}p{2cm}@{}}
-                    \toprule
-                    \textbf{AU} & \textbf{Description} & \textbf{Example image} \\
-                    \midrule
-                    \only<1>{
-                        \textbf{1}  & Inner Brow Raiser    &  \au{01} \\
-                    \textbf{2}  & Outer Brow Raiser    &  \au{02} \\
-                    \textbf{4}  & Brow Lowerer         &  \au{04} \\
-                    \textbf{5}  & Upper Lid Raiser     &  \au{05} \\
-                    \textbf{6}  & Cheek Raiser         &  \au{06} \\
-                    \bottomrule
-                }
-                    \only<2>{
-                        \textbf{15} & Lip Corner Depressor &  \au{15} \\
-                    \textbf{17} & Chin Raiser          &  \au{17} \\
-                    \textbf{20} & Lip stretcher        &  \au{20} \\
-                    \textbf{23} & Lip Tightener        &  \au{23} \\
-                    \bottomrule
-                }
-                \end{tabular}
-            \end{center}
-
-        \end{column}
-        \begin{column}{0.5\linewidth}
-            \begin{center}
-
-                \scriptsize
-                \begin{tabular}{@{}p{0.3cm}p{2cm}p{2cm}@{}}
-                    \toprule
-                    \textbf{AU} & \textbf{Description} & \textbf{Example image} \\
-                    \midrule
-                    \only<1>{
-                        \textbf{7}  & Lid Tightener        &  \au{07} \\
-                    \textbf{9}  & Nose Wrinkler        &  \au{09} \\
-                    \textbf{10} & Upper Lip Raiser     &  \au{10} \\
-                    \textbf{12} & Lip Corner Puller    &  \au{12} \\
-                    \bottomrule
-                }
-                    \only<2>{
-                        \textbf{14} & Dimpler              &  \au{14} \\
-                    \textbf{25} & Lips part            &  \au{25} \\
-                    \textbf{26} & Jaw Drop             &  \au{26} \\
-                    \textbf{45} & Blink                &          \\
-                    \bottomrule
-                }
-                \end{tabular}
-            \end{center}
-        \end{column}
-    \end{columns}
-
-\end{frame}
-
-\begin{frame}{OpenFace Action Units}
-    \begin{center}
-        OpenFace is an open-source library that recognises 17 action units
-        (amongst many other things).
-
-        \href{https://github.com/TadasBaltrusaitis/OpenFace}{github.com/TadasBaltrusaitis/OpenFace}
-        \vspace{2em}
-
-        \includegraphics[width=0.9\linewidth]{emotions/au-openface}
-
-        \scriptsize
-        (not to be confused with this other \href{https://github.com/cmusatyalab/openface}{CMU OpenFace})
-    \end{center}
+        };
+
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% FLOW
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        \draw<1,2>[dotted, ->, in=45, out=180] (incoming.west) to (kb1);
+        \draw<1,2>[dotted, ->, bend right] (kb1) to (pr1);
+        \draw<1,2>[dotted, ->, bend left] (pr1) to (ep1);
+        \draw<1,2>[dotted, ->, in=45, out=180] (ae1.west) to (kb2);
+        \draw<1,3>[dotted, ->, bend right] (kb2) to (pr2);
+        \draw<1,3>[dotted, ->, bend left] (pr2) to (ep2);
+        \draw<1>[dotted, ->, in=45, out=180] (ae2.west) to (kb3);
+        \draw<1,4>[dotted, ->, bend right] (kb3) to (ph1);
+        \draw<1,4>[dotted, ->, bend left] (ph1) to (wait1);
+        \draw<1>[dotted, ->, in=-20, out=180] (wait1.west) to (kb4.east);
+        \draw<1,5>[dotted, ->, bend right] (kb4) to (ph2);
+        \draw<1,5>[dotted, ->, bend left] (ph2) to (wait2);
+        \draw<1,5>[dotted, ->, in=20, out=180] (wait2.west) to (kb5);
+        \draw<1,5>[dotted, ->, bend left] (kb5.east) to (done.north);
+
+
+ \end{tikzpicture}
+ }
 \end{frame}
 
 
 
 
-\imageframe[color=black]{emotions/emotion-dataset-csv}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Our tiny 'emotions' dataset}
-    \begin{itemize}
-        \item A couple of \href{https://www.google.co.uk/search?q=human+face+happiness&tbm=isch&source=lnt&tbs=itp:face}{Google queries}
-        \item a bit of manual filtering
-        \item 558 faces, between 70 and 130 per emotion
-        \item split into 2 datasets: a {\bf training} dataset (50 face per
-            emotion) and a {\bf testing} dataset
-        \item for each face, OpenFace pre-processing to:
-            \begin{itemize}
-                \item extract facial landmarks
-                \item normalise and mask out the faces
-                \item extract action units
-            \end{itemize}
-    \end{itemize}
+%\videoframe[0.56]{videos/dialogs.webm}
+\videoframe[0.56]{videos/dialogs.webm?autostart}
 
-    The dataset is available for you to play with on the lecture's
-    \href{https://github.com/severin-lemaignan/lecture-hri-emotions}{GitHub repo}.
-\end{frame}
-
-
-\begin{frame}[fragile]{Classification results, Action Units}
-    
-
-    \begin{center}
-        {\bf $n$ = 17 dimensions (i.e., 17 action units)}
-    \end{center}
-
-    \begin{columns}
-        \begin{column}{0.4\linewidth}
-    {\bf kNN}:
-    \begin{itemize}
-        \item k=1: 46.9\%
-        \item k=2: 42.2\%
-        \item k=4: 50.8\%
-        \item k=6: 46.1\%
-        \item k=9: 52.3\%
-    \end{itemize}
-
-    {\bf SVM}:
-
-    \begin{itemize}
-        \item kernel: rbf: 48.8\%
-        \item kernel: linear: 52.3\%
-        \item kernel: poly: 38.0\%
-    \end{itemize}
-
-    \onslide<2>{
-        \textbf{Chance}: 16.7\%
-    }
-
-        \end{column}
-        \begin{column}{0.6\linewidth}
-            \begin{pythoncode}
-from numpy import genfromtxt
-from sklearn import neighbors, svm
-
-csv_train = genfromtxt('training.csv')
-training = csv_train[:,1:-1]
-training_categories = csv_train[:,0]
-
-csv_test = genfromtxt('testing.csv')
-testing = csv_test[:,1:-1]
-testing_categories = csv_test[:,0]
-
-clf = neighbors.KNeighborsClassifier(k)
-clf.fit(training, training_categories)
-knns_predictions = clf.predict(testing)
-
-clf = svm.SVC(kernel=kernel)
-clf.fit(training, training_categories)
-svm_predictions = clf.predict(testing)
-
-            \end{pythoncode}
-        \end{column}
-    \end{columns}
-
-\end{frame}
-
-\imageframe[color=black,caption=Natural emotions are much harder]{emotions/natural-emotions-hulot}
-
-
-\begin{frame}{Multi-modal social processing}
-
-    We can usually improve social signal processing by \textbf{combining several
-    modalities}.
-
-    \begin{center}
-        \audio{figs/prosody/media1.mp4}\hspace{0.3em}
-        \audio{figs/prosody/media2.mp4}\hspace{0.3em}
-        \audio{figs/prosody/media3.mp4}\hspace{0.3em}
-        \audio{figs/prosody/media4.mp4}\hspace{0.3em}
-        \audio{figs/prosody/media5.mp4}
-    \end{center}
-    \source{http://emodb.bilderbar.info/start.html}{Berlin Database of
-    Emotional Speech}
-
-    \only<2>{
-        „Sie haben es gerade hochgetragen und jetzt gehen sie wieder runter``
-    (They just carried it upstairs and now they are going down again).
-
-
-
-    Which emotion do you recognise?
-
-
-    \textbf{Anger} -- \textbf{Boredom} -- \textbf{Disgust} -- \textbf{Anxiety/Fear} -- \textbf{Happiness} --
-    \textbf{Sadness} --  \textbf{Neutral}
-}
-
-    \only<3>{
-    \textbf{Prosody} is an important \emph{non-verbal} social signal.
-
-        Humans recognise emotions from prosody with approx. 80\% accuracy
-    (\textit{caveat: this is for speech spoken by actors in a recording studio})
-
-}
-
-
-\end{frame}
-
-
-
-\begin{frame}{We've barely scratched the surface!}
-
-Social signal processing is extracting relevant information from the
-social environment.
-
-Some work relatively well
-
-\begin{itemize}
-
-\item Face \textbf{detection}, voice activity detection, gender
-  classification, \ldots{}
-\end{itemize}
-
-Some work, but need improvement
-
-\begin{itemize}
-
-\item Gaze detection, basic emotion recognition, face \textbf{recognition},
-  speech recognition, \ldots{}
-\end{itemize}
-
-But still many open problems remaining
-
-\begin{itemize}
-
-\item Complex real-word affect and emotion recognition (e.g.~embarrassment,
-  pride).
-\item Speech recognition for atypical speakers (children, elderly),
-  multi-party interaction, \ldots{}
-\end{itemize}
-
-\end{frame}
 
 \miniframesoff
 
@@ -1449,141 +1349,11 @@ But still many open problems remaining
         Questions:\\
         \url{severin.lemaignan@brl.ac.uk} \\[1em]
 
-        Slides:\\ \href{https://github.com/severin-lemaignan/lecture-social-signal-processing}{\small github.com/severin-lemaignan/lecture-social-signal-processing}
+        Slides:\\
+        \href{https://github.com/severin-lemaignan/lecture-social-symbolic-reasoning}{\small
+        github.com/severin-lemaignan/lecture-symbolic-reasoning}
 
     \end{center}
-\end{frame}
-
-
-\begin{frame}{Classification of auditory signals}
-
-    Raw signals will in most cases require pre-processing to extract
-features.
-
-The raw social signal (audio or video) requires pre-processing\bubblemark{preprocessing} to
-extract between 10 and over a 1000 \textbf{features}.
-
-\begin{itemize}
-
-    \item A raw signals contains too much data, and cannot be fed to the
-      classifier immediately.
-
-        \begin{center}
-            \includegraphics[width=0.5\linewidth]{rawaudio}
-        \end{center}
-
-    \item Pre-processing extracts feature data which is relevant for the
-  information which we are after (pitch, volume/energy, duration,
-  formant frequencies, \ldots{})
-    \item These features then form the input for the classifier.
-\end{itemize}
-
-    {\footnotesize
-For more information see, for example, Liang et al. (2005)
-\href{http://ieeexplore.ieee.org/xpls/icp.jsp?arnumber=1571239}{Feature
-analysis and extraction for audio automatic classification}, Systems,
-Man and Cybernetics, 2005 IEEE International Conference on.
-    }
-
-\bubble<2>[50][0.7][5cm]{preprocessing}{An exception to this are Convolutional Neural
-    Networks, which can deal with unprocessed data}
-
-\end{frame}
-
-\begin{frame}{Example: recognising gender from speech}
-
-Can we automatically recognise someone's gender from speech?
-
-3,168 recorded voice samples, collected from male and female speakers.
-
-\begin{itemize}
-
-\item Examples from the database: male (US), female (US), male (Scotish)
-\end{itemize}
-
-    \begin{center}
-    \audio{figs/male-us.mp4}\hspace{0.3em}
-    \audio{figs/male-scottish.mp4}\hspace{0.3em}
-    \audio{figs/female-us.mp4}
-    \end{center}
-
-
-The voice samples are pre-processed by acoustic analysis in R using the
-{\tt seewave}, {\tt warbleR} and {\tt tuneR} packages, with an analysed frequency range of
-0hz-280Hz (fundamental frequency of human speech).
-
-
-\source{https://www.kaggle.com/primaryobjects/voicegender}{data and more information}
-
-
-\end{frame}
-
-\begin{frame}{The 20 features used for gender classification}
-
-    \only<1>{
-\begin{itemize}
-
-\item \textbf{meanfreq}: mean frequency (in kHz)
-\item \textbf{sd}: standard deviation of frequency
-\item \textbf{median}: median frequency (in kHz)
-\item \textbf{Q25}: first quantile (in kHz)
-\item \textbf{Q75}: third quantile (in kHz)
-\item \textbf{IQR}: interquantile range (in kHz)
-\item \textbf{skew}: skewness (see note in specprop description)
-\item \textbf{kurt}: kurtosis (see note in specprop description)
-\item \textbf{sp.ent}: spectral entropy
-\item \textbf{sfm}: spectral flatness
-\item \textbf{mode}: mode frequency
-\item \textbf{centroid}: frequency centroid (see specprop)
-\item \textbf{peakf}: peak frequency (frequency with highest energy)
-\item \textbf{meanfun}: average of fundamental frequency measured across
-  acoustic signal
-\end{itemize}
-}
-    \only<2>{
-\begin{itemize}
-
-\item \textbf{minfun}: minimum fundamental frequency measured across
-  acoustic signal
-\item \textbf{maxfun}: maximum fundamental frequency measured across
-  acoustic signal
-\item \textbf{meandom}: average of dominant frequency measured across
-  acoustic signal
-\item \textbf{mindom}: minimum of dominant frequency measured across
-  acoustic signal
-\item \textbf{maxdom}: maximum of dominant frequency measured across
-  acoustic signal
-\item \textbf{dfrange}: range of dominant frequency measured across acoustic
-  signal
-\item \textbf{modindx}: modulation index. Calculated as the accumulated
-  absolute difference between adjacent measurements of fundamental
-  frequencies divided by the frequency range
-\end{itemize}
-}
-
-\end{frame}
-
-\begin{frame}{Example: recognising gender from speech}
-
-    \begin{center}
-        \includegraphics[width=\linewidth]{vector-gender-voice}
-    \end{center}
-\end{frame}
-
-\begin{frame}{Example: recognising gender from speech}
-
-Performance
-
-\begin{itemize}
-
-\item kNN (k = 7): 97.8\% classified correctly.
-\item SVM: 97.5\% classified correctly.
-\end{itemize}
-
-Recognising gender from speech is easy and robust.
-
-All classification algorithms can deal with this problem.
-
 \end{frame}
 
 
