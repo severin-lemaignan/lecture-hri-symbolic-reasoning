@@ -85,7 +85,7 @@
 
 \miniframesoff
 
-\licenseframe{github.com/severin-lemaignan/lectures-hri-symbolic-reasoning}
+\licenseframe{github.com/severin-lemaignan/lecture-hri-symbolic-reasoning}
 
 \maketitle
 
@@ -97,10 +97,12 @@
     \item<1-> Last week: NLP down to syntax parsing
     \item<2-> Today: \textbf{meaning} (both semantics and pragmatics)
 
-    \item<3-> How to attach \emph{meaning} to natural language?
-    \item<3-> What are ontologies?
-    \item<3-> How is `meaning' represented and used within the robot?
-    \item<3-> How does it relate to \emph{mental models}?
+    \begin{itemize}
+        \item<3-> How to attach \emph{meaning} to perceptions \& natural language?
+        \item<3-> What are ontologies?
+        \item<3-> How is `meaning' represented and used within the robot?
+        \item<3-> How does it relate to \emph{mental models}?
+    \end{itemize}
 
 \end{itemize}
 
@@ -140,7 +142,9 @@
 
 \begin{frame}{The Symbol Grounding Problem}
     \centering
+    \only<1-3>{
     \Large How to attach meaning to a symbol?
+    }
 
     \normalsize
 
@@ -156,19 +160,24 @@
         \href{https://en.wikipedia.org/wiki/Chinese_room}{Read more on Wikipedia}
 
     }
-
     \only<3>{
 
         Is it possible at all?
 
     }
+    \only<4>{
+        \Large
+        \textbf{Embodiement} is part of the answer. In robotics, we talk of
+        \textbf{Situated AI}.
+    }
+
 
 \end{frame}
 
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Symbolic social cognition}
+\section[Symbolic cognition]{Situated, Grounded, Symbolic social cognition}
 
 
 {
@@ -176,7 +185,7 @@
     Interaction: An Implementation}, Artifical Intelligence, 2017}
 \begin{frame}{Situation Assessment}
         \centering
-        \video{0.8\textwidth}{videos/model3d.webm}\\
+        \video{0.9\textwidth}{videos/model3d.webm}\\
 
 \end{frame}
 }
@@ -228,13 +237,92 @@
 \end{frame}
 }
 
-{
-    \paper{Lemaignan et al. \emph{ORO, a Knowledge Management Module for
-    Cognitive Architectures in Robotics}, IROS 2010}
-\begin{frame}{From Spatial Model to Symbolic Model}
+\begin{frame}{Statement, beliefs}
+    \centering
 
+    \stmt{\normalsize human\_1 sees teddybear}
+
+    \pause
+
+    \Large
+    A \textbf{statement} is a true proposition (in a given model)
+    \pause
+    $\equiv$ \textbf{belief}
+    \pause
+
+    \stmt{\normalsize teddybear type Toy}
+
+    \pause
+
+    \stmt{\normalsize teddybear isOn table\_1}
+
+    \pause
+
+    \stmt{\normalsize human\_1 hates robot\_1} (in the human's model only!)
+
+\end{frame}
+
+
+\begin{frame}{Statement, beliefs (2)}
+    \centering
+    \Large
+
+    \stmt{\normalsize human\_1 sees teddybear}
+
+
+    Triplet $\langle S, P, O \rangle$: subject, predicate, object
+
+    \pause
+
+    $P$ is a predicate of \textbf{arity} 2: $P(S, O)$
+
+    \vspace{1em}
+    \begin{overlayarea}{\textwidth}{4cm}
+
+        \normalsize
+
+    \only<3>{
+    Some logic language (like Prolog) allows arbitrary arities:
+
+    \stmt{\normalsize give(robot\_1, human\_1, teddybear)}
+    }
+
+    \only<4>{
+
+    Many do not (like the OWL language). In this case, \textbf{reification}:
+
+    \stmt{give\_act\_1 type Give} 
+
+    \stmt{give\_act\_1 performedBy robot\_1} 
+
+    \stmt{give\_act\_1 receivedBy human\_1} 
+
+    \stmt{give\_act\_1 actsOnObject teddybear}
+
+    }
+
+    \end{overlayarea}
+
+\end{frame}
+
+\begin{frame}{Towards ontologies}
+
+    \only<1>{
+        The robot's newly acquired beliefs typically have to be \textbf{anchored} in
+        pre-existing knowledge.
+
+        $\rightarrow$ We usually endow the robot with \textbf{background knowledge} (also
+        known as \textbf{common-sense knowledge} with statements like:
+
+        \stmt{Object rdfs:subclassOf PhysicalThing}
+
+        \stmt{Location rdfs:subclassOf SpatialThing}
+    }
+
+    \only<2>{
+
+    \centering
     \begin{figure}
-        \centering
 
         \resizebox{0.9\paperwidth}{!}{%
             \begin{tikzpicture}[
@@ -265,15 +353,19 @@
                 \node [below left=of sit] {static situation} edge (sit);
 
             \end{tikzpicture}
-        }
-
+            }
     \end{figure}
 
+    \large
+    Example of an \textbf{upper ontology}
+
+    }
+
 \end{frame}
-}
 
 
 \begin{frame}{Ontologies}
+
 
     \centering
     \Large
@@ -390,6 +482,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 
+\begin{frame}[plain]
+
+    \centering
+    \Large
+
+    Back to our initial example:
+
+    \textbf{Give me that book!}
+
+\end{frame}
+
 {
 \paper{Lemaignan et al. \emph{Grounding the Interaction: Anchoring
 Situated Discourse in Everyday HRI} -- Intl. J. of Social Robotics 2011}
@@ -496,18 +599,18 @@ Situated Discourse in Everyday HRI} Intl. J. of Social Robotics 2011}
     \uncover<2-> {
         $\downarrow$\\
         {\tt me} $\rightarrow$ {\tt human\_1} \\
-        find({\tt\scriptsize ?obj type table}) $\rightarrow$ {\tt ikea\_table} \\
-        find({\tt\scriptsize ?obj type book, ?obj isOn ikea\_table})
+        find({\tt\scriptsize ?obj type Table}) $\rightarrow$ {\tt ikea\_table} \\
+        find({\tt\scriptsize ?obj type Book, ?obj isOn ikea\_table})
         $\rightarrow$ {\tt harry\_potter} \\
     }
 
     \uncover<3-> {
         $\downarrow$\\
-        { \tt
+        { \tt \small
             \textbf{human\_1} desires \textbf{give\_act\_1}, \\
             \textbf{give\_act\_1} type \textbf{Give}, \\
             \textbf{give\_act\_1} performedBy \textbf{myself}, \\
-            \textbf{give\_act\_1} actsOnObject \textbf{book}, \\
+            \textbf{give\_act\_1} actsOnObject \textbf{harry\_potter}, \\
             \textbf{give\_act\_1} receivedBy \textbf{human\_1} \\
         }
     }
@@ -630,8 +733,7 @@ Situated Discourse in Everyday HRI} Intl. J. of Social Robotics 2011}
     \vspace*{2em}
     ``Where is the other tape?''\\
     $\downarrow$\\
-    find({\tt\scriptsize ?obj isAt ?loc, ?obj type VideoTape, ?obj differentFrom
-    WALL\_E\_TAPE})
+    find({\tt\scriptsize ?obj isAt ?loc, ?obj type VideoTape, ?obj differentFrom WALL\_E})
 
     \pause
 
@@ -947,8 +1049,21 @@ constraining function [...]}, Cognition, 1983]%\newline
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \miniframesoff
+
+\begin{frame}{The symbolic vs sub-symbolic debate}
+
+    \begin{itemize}
+        \item Symbolic approaches assume a well-ordered, `regular' world
+            $\rightarrow$ not often the case + world full of exceptions!
+            (\stmt{Bird subclassOf FlyingThing}?)
+        \item Symbolic learning is possible, but not nearly as powerful as
+            sub-symbolic machine learning
+        \item How to bridge the epistemic gap between symbolic and sub-symbolic
+            AI?
+    \end{itemize}
+\end{frame}
+
 
 \begin{frame}{}
     \begin{center}
@@ -959,8 +1074,8 @@ constraining function [...]}, Cognition, 1983]%\newline
         \url{severin.lemaignan@brl.ac.uk} \\[1em]
 
         Slides:\\
-        \href{https://github.com/severin-lemaignan/lecture-social-symbolic-reasoning}{\small
-        github.com/severin-lemaignan/lecture-symbolic-reasoning}
+        \href{https://github.com/severin-lemaignan/lecture-hri-symbolic-reasoning}{\small
+        github.com/severin-lemaignan/lecture-hri-symbolic-reasoning}
 
     \end{center}
 \end{frame}

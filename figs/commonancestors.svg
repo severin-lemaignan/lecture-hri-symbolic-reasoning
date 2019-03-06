@@ -496,18 +496,18 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="2560"
-     inkscape:window-height="1012"
+     inkscape:window-height="1317"
      id="namedview478"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:zoom="1.9453809"
-     inkscape:cx="104.18645"
-     inkscape:cy="116.03299"
-     inkscape:window-x="3840"
-     inkscape:window-y="32"
+     inkscape:zoom="3.8907618"
+     inkscape:cx="113.38816"
+     inkscape:cy="95.810074"
+     inkscape:window-x="0"
+     inkscape:window-y="49"
      inkscape:window-maximized="1"
      inkscape:current-layer="g4514" />
   <g
@@ -585,6 +585,46 @@
     <!-- currentworldstate&#45;&gt;cycStaticSituation -->
     <g
        id="g4514">
+      <g
+         transform="matrix(0.6190061,-0.45051571,-0.45051571,-0.6190061,97.33198,28.749762)"
+         id="g984"
+         inkscape:export-filename="/home/slemaign/work/architectures/spark/spark2_proposal2/5.png"
+         inkscape:export-xdpi="150"
+         inkscape:export-ydpi="150"
+         style="display:inline">
+        <path
+           sodipodi:nodetypes="cc"
+           inkscape:connector-curvature="0"
+           id="path980"
+           d="m 354.68429,399.49951 0.66694,-24.48959"
+           style="fill:none;stroke:#000000;stroke-width:2.88090324;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        <path
+           style="fill:#000000;stroke:#000000;stroke-width:2.26223445px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+           d="m 358.85924,377.45034 -3.28788,-6.42471 -3.90828,6.1292 z"
+           id="path982"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccc" />
+      </g>
+      <g
+         style="display:inline"
+         inkscape:export-ydpi="150"
+         inkscape:export-xdpi="150"
+         inkscape:export-filename="/home/slemaign/work/architectures/spark/spark2_proposal2/5.png"
+         id="g990"
+         transform="matrix(0.6190061,-0.45051571,-0.45051571,-0.6190061,162.71764,73.985119)">
+        <path
+           style="fill:none;stroke:#000000;stroke-width:2.88090324;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 354.68429,399.49951 0.66694,-24.48959"
+           id="path986"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cc" />
+        <path
+           sodipodi:nodetypes="cccc"
+           inkscape:connector-curvature="0"
+           id="path988"
+           d="m 358.85924,377.45034 -3.28788,-6.42471 -3.90828,6.1292 z"
+           style="fill:#000000;stroke:#000000;stroke-width:2.26223445px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      </g>
       <g
          transform="matrix(-0.60569768,-0.46825557,0.46825557,-0.60569768,268.14771,-57.220217)"
          id="g3561"
@@ -722,26 +762,6 @@
            sodipodi:nodetypes="cccc"
            inkscape:connector-curvature="0"
            id="path3119"
-           d="m 358.85924,377.45034 -3.28788,-6.42471 -3.90828,6.1292 z"
-           style="fill:#000000;stroke:#000000;stroke-width:2.26223445px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
-      </g>
-      <g
-         style="display:inline"
-         inkscape:export-ydpi="150"
-         inkscape:export-xdpi="150"
-         inkscape:export-filename="/home/slemaign/work/architectures/spark/spark2_proposal2/5.png"
-         id="g3121"
-         transform="matrix(-0.41241873,0.64501454,-0.64501454,-0.41241873,627.38934,-393.11376)">
-        <path
-           style="fill:none;stroke:#000000;stroke-width:2.88090324;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="M 366.21214,538.02734 355.35123,375.00992"
-           id="path3123"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="cc" />
-        <path
-           sodipodi:nodetypes="cccc"
-           inkscape:connector-curvature="0"
-           id="path3125"
            d="m 358.85924,377.45034 -3.28788,-6.42471 -3.90828,6.1292 z"
            style="fill:#000000;stroke:#000000;stroke-width:2.26223445px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
       </g>
@@ -910,6 +930,28 @@
            style="font-size:14px;line-height:0%;font-family:FlamaLight;text-anchor:middle;stroke:none;stroke-opacity:1;fill:#46413c;fill-opacity:1"
            y="-456.13409"
            x="509.87234">white whale</text>
+      </g>
+      <rect
+         ry="4.5319586"
+         rx="4.5319586"
+         y="-358.16409"
+         x="111.06358"
+         height="27.641575"
+         width="97.929756"
+         id="rect972"
+         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#d5aa80;fill-opacity:1;fill-rule:nonzero;stroke:#46413c;stroke-width:0.48108423;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate" />
+      <g
+         style="fill:#46413c;fill-opacity:1;stroke:none;stroke-opacity:1"
+         id="g978"
+         class="node"
+         transform="translate(-94.31913,-273.0953)">
+        <title
+           id="title974">TimeInterval</title>
+        <text
+           x="254"
+           y="-65.900002"
+           style="font-size:14px;line-height:0%;font-family:FlamaLight;text-anchor:middle;fill:#46413c;fill-opacity:1;stroke:none;stroke-opacity:1"
+           id="text976">mammal</text>
       </g>
     </g>
   </g>
