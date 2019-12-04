@@ -1,14 +1,14 @@
-Introduction to Social Signal Processing
-========================================
+Introduction to Symbolic Reasoning in HRI
+=========================================
 
-Lecture slides on social signal processing for human robot interaction.
+Lecture slides on symbolic reasoning for human robot interaction.
 
 - **Target audience**: MSc students
 - **License**: CC-BY-SA (ie, you can freely reuse this material, as long as you
   clearly mention Séverin Lemaignan as the original author. If you
   modify/augment these slides, you *must* share the modifications under the same
   license)
-- [Link to the PDF slides](social-signal-processing.pdf)
+- [Link to the PDF slides](symbolic-reasoning.pdf)
 
 
 ![Screenshot 1](screenshot-1.png)
