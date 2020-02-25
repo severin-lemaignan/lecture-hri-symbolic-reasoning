@@ -1,6 +1,14 @@
 %!TEX program = xelatex
 
 \documentclass[compress]{beamer}
+
+
+\usepackage{pgfpages}
+
+\mode<handout>{%
+    \pgfpagesuselayout{4 on 1}[a4paper]
+    \setbeameroption{show notes}
+}
 %--------------------------------------------------------------------------
 % Common packages
 %--------------------------------------------------------------------------
@@ -94,20 +102,30 @@
 \begin{frame}{In this lecture}
 
 \begin{itemize}
-    \item<1-> Last week: NLP down to syntax parsing
+    \item<1-> Lecture on speech: NLP down to syntax parsing
     \item<2-> Today: \textbf{meaning} (both semantics and pragmatics)
 
     \begin{itemize}
-        \item<3-> How to attach \emph{meaning} to perceptions \& natural language?
-        \item<3-> What are ontologies?
-        \item<3-> How is `meaning' represented and used within the robot?
-        \item<3-> How does it relate to \emph{mental models}?
+        \item<4-> How to attach \emph{meaning} to perceptions \& natural language?
+        \item<4-> What are ontologies?
+        \item<4-> How is `meaning' represented and used within the robot?
+        \item<4-> How does it relate to \emph{mental models}?
     \end{itemize}
 
+        \onslide<3->{
+
+\begin{exampleblock}{Semantics vs Pragmatics}
+    \emph{Semantics} is the (conventional) meaning attached to words and
+    sentences; \emph{Pragmatics} study the actual meaning coming out of the
+    context: who speaks? how they speak? what common knowledge between the
+    speaker and the listener? what is the situation? etc.
+\end{exampleblock}
+
+
+        }
 \end{itemize}
 
 \end{frame}
-
 
 \section*{Introduction}
 
@@ -122,7 +140,8 @@
 
     \begin{columns}
         \begin{column}{0.5\linewidth}
-            How can the robot make sense of and act upon a command like:
+            How can the robot make sense of and act upon a sequence of letters
+            like:
             \vspace{2em}
 
             \bf
@@ -142,15 +161,24 @@
 
 \begin{frame}{The Symbol Grounding Problem}
     \centering
-    \only<1-3>{
+    \only<1>{
     \Large How to attach meaning to a symbol?
     }
 
     \normalsize
 
     \only<2>{
+        Google Translate translates French ``\emph{Il pleut comme vache qui
+        pissent}'' into English ``\emph{It's raining cats and dogs}''.
+        
+        ...no peeing cow?? Does Google Translate \emph{understand} French and/or
+        English?
+    }
 
-        Searle's \textbf{Chinese Room Argument}
+    \only<3>{
+
+        The mind as a computer:\\
+        \emph{functionalism} \& Searle's \textbf{Chinese Room Argument}
 
         \begin{center}
             \includegraphics[width=0.8\linewidth]{chinese-room}
@@ -160,12 +188,15 @@
         \href{https://en.wikipedia.org/wiki/Chinese_room}{Read more on Wikipedia}
 
     }
-    \only<3>{
+    \only<4>{
+
+        {\Large How to attach meaning to a symbol?}
 
         Is it possible at all?
+        Is it actually necessary?
 
     }
-    \only<4>{
+    \only<5>{
         \Large
         \textbf{Embodiement} is part of the answer. In robotics, we talk of
         \textbf{Situated AI}.
@@ -312,7 +343,7 @@
         pre-existing knowledge.
 
         $\rightarrow$ We usually endow the robot with \textbf{background knowledge} (also
-        known as \textbf{common-sense knowledge} with statements like:
+        known as \textbf{common-sense knowledge}) with statements like:
 
         \stmt{Object rdfs:subclassOf PhysicalThing}
 
@@ -397,8 +428,8 @@
 
     \pause
 
-    Ontologies are represented using a \textbf{knowledge description} language.
-    The \textbf{Web Ontology Langage (OWL)} is a very common choice that uses a
+    Ontologies are represented using a \textbf{knowledge description language}.
+    The \textbf{Web Ontology Langage (OWL)} is a common choice that uses a
     XML encoding.
 \end{frame}
 
@@ -742,42 +773,6 @@ Situated Discourse in Everyday HRI} Intl. J. of Social Robotics 2011}
 
 \end{frame}
 
-\begin{frame}{Reasoning example: best descriptor for a concept}
-
-        \begin{center}
-            \includegraphics[width=0.6\linewidth]{commonancestors}
-        \end{center}
-
-    \only<2>{
-\begin{pseudocode}[ruled]{CommonAncestors}{concept1, concept2}
-\label{algo|common-ancestors}
-
-\BEGIN
-\mathcal{I} \GETS \CALL{Superclasses}{concept1} \cap \CALL{Superclasses}{concept2} \\
-\RETURN {c \in \mathcal{I} | \CALL{Subclasses}{c} \cap \mathcal{I} = \emptyset}\\
-\END
-
-\end{pseudocode}
-
-
-    }
-    \only<3>{
-\begin{pseudocode}[ruled]{FirstDifferentAncestors}{concept1, concept2}
-\label{algo|first-different-ancestors}
-
-\BEGIN
-\mathcal{C} \GETS \CALL{CommonAncestors}{concept1, concept2} \\
-\mathcal{S} \GETS \CALL{Superclasses}{concept1} \cup \CALL{Superclasses}{concept2} \\
-
-\RETURN{\forall c \in \mathcal{C}, \CALL{DirectSubclasses}{c} \cap \mathcal{S}} \\
-\END
-
-\end{pseudocode}
-
-    }
-\end{frame}
-
-
 \begin{frame}{Interaction example: I Spy With My Little Eye}
 
     \centering
@@ -849,7 +844,6 @@ Situated Discourse in Everyday HRI} Intl. J. of Social Robotics 2011}
     }
 
 \end{frame}
-
 
 
 
@@ -1078,6 +1072,43 @@ constraining function [...]}, Cognition, 1983]%\newline
         github.com/severin-lemaignan/lecture-hri-symbolic-reasoning}
 
     \end{center}
+\end{frame}
+
+
+
+\begin{frame}{Reasoning example: best descriptor for a concept}
+
+        \begin{center}
+            \includegraphics[width=0.6\linewidth]{commonancestors}
+        \end{center}
+
+    \only<2>{
+\begin{pseudocode}[ruled]{CommonAncestors}{concept1, concept2}
+\label{algo|common-ancestors}
+
+\BEGIN
+\mathcal{I} \GETS \CALL{Superclasses}{concept1} \cap \CALL{Superclasses}{concept2} \\
+\RETURN {c \in \mathcal{I} | \CALL{Subclasses}{c} \cap \mathcal{I} = \emptyset}\\
+\END
+
+\end{pseudocode}
+
+
+    }
+    \only<3>{
+\begin{pseudocode}[ruled]{FirstDifferentAncestors}{concept1, concept2}
+\label{algo|first-different-ancestors}
+
+\BEGIN
+\mathcal{C} \GETS \CALL{CommonAncestors}{concept1, concept2} \\
+\mathcal{S} \GETS \CALL{Superclasses}{concept1} \cup \CALL{Superclasses}{concept2} \\
+
+\RETURN{\forall c \in \mathcal{C}, \CALL{DirectSubclasses}{c} \cap \mathcal{S}} \\
+\END
+
+\end{pseudocode}
+
+    }
 \end{frame}
 
 
