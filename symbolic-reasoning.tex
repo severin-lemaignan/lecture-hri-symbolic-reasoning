@@ -79,7 +79,9 @@
 
 % for HATP plans
 \newcommand{\hatpaction}[3]{#1\\\textsf{\scriptsize #2,}\\\textsf{\scriptsize #3}}
-\newcommand{\stmt}[1]{{\footnotesize \tt  #1}}
+
+\def\colorstmt#1 #2 #3\relax{\texttt{{\color{hriSec2Dark}#1} {\color{hriSec3}#2} {\color{hriSec1Dark}#3}}}
+\def\stmt#1{\expandafter\colorstmt#1\relax}
 
 % for mutual modelling
 \newcommand{\Mmodel}[3]{{\mathcal{M}(#1, #2, #3)}}
@@ -172,7 +174,7 @@
 
     \only<2>{
         Google Translate translates French ``\emph{Il pleut comme vache qui
-        pissent}'' into English ``\emph{It's raining cats and dogs}''.
+        pisse}'' into English ``\emph{It's raining cats and dogs}''.
         
         ...no peeing cow?? Does Google Translate \emph{understand} French and/or
         English?
@@ -273,26 +275,26 @@
 
 \begin{frame}{Statement, beliefs}
     \centering
+    \Large
 
-    \stmt{\normalsize human\_1 sees teddybear}
+    \stmt{human\_1 sees teddybear}
 
     \pause
 
-    \Large
     A \textbf{statement} is a true proposition (in a given model)
     \pause
     $\equiv$ \textbf{belief}
     \pause
 
-    \stmt{\normalsize teddybear type Toy}
+    \stmt{teddybear type Toy}
 
     \pause
 
-    \stmt{\normalsize teddybear isOn table\_1}
+    \stmt{teddybear isOn table\_1}
 
     \pause
 
-    \stmt{\normalsize human\_1 hates robot\_1} (in the human's model only!)
+    \stmt{human\_1 scaredOf robot\_1} (in the human's model only!)
 
 \end{frame}
 
@@ -301,7 +303,7 @@
     \centering
     \Large
 
-    \stmt{\normalsize human\_1 sees teddybear}
+    \stmt{ human\_1 sees teddybear}
 
 
     Triplet $\langle S, P, O \rangle$: subject, predicate, object
@@ -318,7 +320,7 @@
     \only<3>{
     Some logic language (like Prolog) allows arbitrary arities:
 
-    \stmt{\normalsize give(robot\_1, human\_1, teddybear)}
+    \texttt{give(robot\_1, human\_1, teddybear)}
     }
 
     \only<4>{
@@ -351,6 +353,8 @@
         \stmt{Object rdfs:subclassOf PhysicalThing}
 
         \stmt{Location rdfs:subclassOf SpatialThing}
+
+        \stmt{sky hasColor blue}
     }
 
     \only<2>{
@@ -421,13 +425,23 @@
 
     \begin{itemize}
         \item \textbf{T-box} statements: the \emph{conceptualisation} of the
-            domain, for instance in terms of \emph{categories} (classes): \stmt{Dog
-            rdfs:subClassOf Animal}
+            domain, for instance in terms of \emph{categories} (classes): 
+
+            \begin{center}
+                \bubblemark{class}\stmt{Dog rdfs:subClassOf Animal}
+            \end{center}
 
         \item \textbf{A-box} statements: (T-box compliant) statements about
-            \emph{individuals} (instances) in the ontology: \stmt{SPOT rdf:type Dog}
+            \emph{individuals} (instances) in the ontology:
+
+            \begin{center}
+            \bubblemark{instance}\stmt{SPOT rdf:type Dog}
+            \end{center}
 
     \end{itemize}
+
+    \bubble<1>[0][0.5][3cm]{class}{{\tt Dog} is a class}
+    \bubble<1>[0][0.5][3cm]{instance}{{\tt SPOT} is an instance}
 
     \pause
 
@@ -436,7 +450,7 @@
     XML encoding.
 \end{frame}
 
-\begin{frame}{Online instanciation}
+\begin{frame}{Example}
 
     \begin{columns}
         \begin{column}{0.4\linewidth}
@@ -458,47 +472,50 @@
             classof/.style={<-, draw=black!60, dashed},
             property/.style={<-, draw=hriSec2Comp},
             propname/.style={above, draw=none, fill=none, font=\tt, inner sep=2pt},
-            instance/.style={draw=hriSec1Dark, font=\sf, node distance=0.5, rounded corners,
-        align=center, inner sep=5pt, fill=none}]
+            instance/.style={draw=hriSec1Dark, font=\sf, node distance=0.5, rounded corners, align=center, inner sep=5pt, fill=none}]
 
-            \node[fill=hriSec2Comp!50] (thing) {\textbf{thing}};
-            \node [fill=hriSec3CompDark!50, node distance=1.8, below left=of
-            thing](sthing) {place} edge[dashed] (thing);
-            \node [fill=hriSec3CompDark!50, below left=of sthing] (agent) {agent} edge (sthing);
-                \node [fill=hriSec3CompDark!50, below=of sthing] (artifact) {artifact} edge (sthing);
-                \node [fill=hriSec3CompDark!50, below right=of sthing] (location) {physical
-                support} edge (sthing);
-                \node [fill=hriSec3CompDark!50, below right=of artifact] (table) {table}
-                    edge (location) edge (artifact);
+        \node[fill=hriSec2Comp!50] (thing) {\textbf{thing}};
+        \node[fill=hriSec3CompDark!50, node distance=1.8, below left=of thing](sthing) {place} edge[dashed] (thing);
+        \node[fill=hriSec3CompDark!50, below left=of sthing] (agent) {agent} edge (sthing);
+        \node[fill=hriSec3CompDark!50, below=of sthing] (artifact) {artifact} edge (sthing);
+        \node[fill=hriSec3CompDark!50, below right=of sthing] (location) {physical support} edge (sthing);
+        \node[fill=hriSec3CompDark!50, below right=of artifact] (table) {table} edge (location) edge (artifact);
+        \node[fill=hriSec3CompDark!50, below=of artifact] (book) {book} edge (artifact);
+        \node[node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
+        \node[below right=of tthing] (evt) {event} edge[dashed] (tthing);
+        \node[below right=of evt] (act) {action} edge (evt);
+        \node[fill=hriSec1CompDark!50, right=2.5 of table] (color) {color} edge (thing);
 
+        \node[rotate=90,draw=none,fill=none] at (-7.8,-2) {\bf\Large T-Box};
 
-            \node [node distance=1, below right=of thing] (tthing) {temporal thing} edge (thing);
-                \node [below right=of tthing] (evt) {event} edge[dashed] (tthing);
-                            \node [below right=of evt] (act) {action} edge (evt);
+        \draw[dotted, thick] (-8,-3.8) -- +(16, 0);
+            \node[instance, below=1.5 of color] (brown) {brown} edge[classof] (color);
+        \node[rotate=90,draw=none,fill=none] at (-7.8,-5) {\bf\Large A-Box};
 
         \uncover<2->{
-        \draw[dotted, thick] (-8,-3.8) -- +(16, 0);
 
-        \node [instance, below=3 of agent] (human) {human\_1} edge[classof, bend left] (agent);
-        \node [instance, above left=of human] (human2) {human\_2} edge[classof, bend left] (agent);
-        \node [instance, above right=of human, anchor=south] (robot) {myself} edge[classof, bend left] (agent);
-        \node [instance, right=of human, anchor=north west] (book)
-            {harry\_potter}
-        edge[classof] (artifact);
-        \node [instance, right=2 of robot] (ikea) {ikea\_table} edge[classof, bend
-        right] (table);
-        \node [instance, right=2 of book] (brown) {brown} edge[property] node[propname] {hasColor} (book);
 
+        \node[instance, below=3 of agent] (human) {human\_1} edge[classof, bend left] (agent);
+        \node[instance, above left=of human] (human2) {human\_2} edge[classof, bend left] (agent);
+        \node[instance, above right=of human, anchor=south] (robot) {myself} edge[classof, bend left] (agent);
+        \node[instance, right=of human, anchor=north west] (hpbook) {harry\_potter} edge[classof] (book);
+        \node[instance, right=2 of robot] (ikea) {ikea\_table} edge[classof, bend right] (table);
 
         }
-        \uncover<3>{
+
+        \uncover<3->{
+
         \draw[dotted, thick] (-8,-6.2) -- +(16, 0);
 
         \node [instance, below=5 of act] (moving) {move\_act\_42} edge[classof] (act);
-        \path (moving.west) edge [property, out=180, in=-80, looseness=1] node[propname,below] {currentlyPerforms} (human.230);
-        \path (human.280) edge [property, out=-80, in=-90, looseness=3.5] node[propname,right] {looksAt} (robot.south);
-        \path (ikea.south) edge [property, out=-90, in=-80, looseness=2.5] node[propname, auto] {isOn} (book.320);
+        \path (moving.west) edge [property, out=180, in=-80, looseness=1.2] node[propname,below] {currentlyPerforms} (human.230);
+        \path (hpbook.200) edge [property, out=-90, in=-90, looseness=2] node[propname,right] {looksAt} (human.300);
+        \path (ikea.south) edge [property, out=-60, in=-60, looseness=2.5] node[propname, auto] {isOn} (hpbook.340);
+        \path (brown) edge[property,out=-90, in=-90,looseness=1.5] node[propname,right,near start] {hasColor} (hpbook.south);
+
+            \node[rotate=90,draw=none,fill=none,text width=2cm] at (-7.8,-7.5) {\bf\Large A-Box (on-line)};
         }
+
         \end{tikzpicture}
         }
 
@@ -507,6 +524,12 @@
        \end{column}
     \end{columns}
 
+    \onslide<4>{
+        \scriptsize
+        The robot starts with some manually provided commonsense knowledge (encoded
+        in T-Box + A-Box) and initial knowledge about the environment (in
+        A-Box), and instantiate itself additional concepts and relations on-line, based
+        on its perception.  }
 
 
 
@@ -761,18 +784,31 @@ Situated Discourse in Everyday HRI} Intl. J. of Social Robotics 2011}
 %\videoframe[0.56]{videos/this_box.webm}
 \videoframe[0.56]{videos/this_box.mp4?autostart&start=1}
 
-\begin{frame}{Example of first-order logic reasoning}
+\begin{frame}[fragile]{Example of first-order logic reasoning}
     \centering
 
     \vspace*{2em}
-    ``Where is the other tape?''\\
+    ``Where is the other DVD?''\\
     $\downarrow$\\
-    find({\tt\scriptsize ?obj isAt ?loc, ?obj type VideoTape, ?obj differentFrom WALL\_E})
+    find({\tt\scriptsize ?obj isAt ?loc, ?obj type Dvd, ?obj differentFrom WALL\_E})\\
+    $\downarrow$\\
+
+    \begin{sparqlcode}
+    SELECT ?loc
+    WHERE {
+        ?obj oro:isAt ?loc .
+        ?obj rdf:type oro:Dvd .
+        ?obj owl:differentFrom oro:WALL_E
+    }
+    \end{sparqlcode}
+    \bubblemark{sparql}
+
+    \bubble<1>[90][0.5][5cm]{sparql}{Using SPARQL query language}
+    
 
     \pause
 
-    \vspace*{2em}
-    Symbolic approaches effective at dealing with this kind of constraints
+    Symbolic approaches effective at dealing with this kind of semantics.
 
 \end{frame}
 
@@ -873,7 +909,7 @@ constraining function [...]}, Cognition, 1983]%\newline
     \begin{center}
         \includegraphics[width=0.8\linewidth]{videos/this_box_thumb}
 
-        What if I ask for the video tape in the box, but the robot previously
+        What if I ask for the DVD in the box, but the robot previously
         moved it somewhere else?
 
 
@@ -924,7 +960,7 @@ constraining function [...]}, Cognition, 1983]%\newline
                 edge[classof] (artifact);
                 \node [instance, right=3 of robot] (ikea) {ikea\_table} edge[classof, bend
                 right] (table);
-                \node [instance, right=2 of book] (red) {red} edge[property] node[propname] {hasColor} (book);
+                \node [instance, right=2 of book] (red) {brown} edge[property] node[propname] {hasColor} (book);
 
                 \node [instance,right=1 of robot,fill=hriSec2] {myself} edge[property] node[propname, auto,above] {$\equiv$} (robot);
 
@@ -975,7 +1011,7 @@ constraining function [...]}, Cognition, 1983]%\newline
                 edge[classof] (artifact);
                 \node [instance, right=3 of robot] (ikea) {ikea\_table} edge[classof, bend
                 right] (table);
-                \node [instance, right=2 of book] (red) {red} edge[property] node[propname] {hasColor} (book);
+                \node [instance, right=2 of book] (red) {brown} edge[property] node[propname] {hasColor} (book);
 
                 \node [instance,below left=1 of human,fill=hriSec2] {myself} edge[property] node[propname, auto,above] {$\equiv$} (human);
 
@@ -1026,7 +1062,7 @@ constraining function [...]}, Cognition, 1983]%\newline
                 edge[classof] (artifact);
                 \node [instance, right=3 of robot] (ikea) {ikea\_table} edge[classof, bend
                 right] (table);
-                \node [instance, right=2 of book] (red) {red} edge[property] node[propname] {hasColor} (book);
+                \node [instance, right=2 of book] (red) {brown} edge[property] node[propname] {hasColor} (book);
 
                 \node [instance,below=1 of human2,fill=hriSec2] {myself} edge[property] node[propname, auto] {$\equiv$} (human2);
 
